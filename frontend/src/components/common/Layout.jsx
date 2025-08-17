@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Header from './Header.jsx'
-import Navigation from './Navigation'
+import Navigation from './Navigation.jsx'
 import Footer from './Footer'
 import { Menu, X } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
@@ -58,7 +58,7 @@ const Layout = ({ children }) => {
                             </button>
                         </div>
 
-                        {/* Navigation */}
+                        {/* Navigation.jsx */}
                         <Navigation onNavigate={closeSidebar} currentPath={location.pathname} />
                     </div>
                 </aside>
