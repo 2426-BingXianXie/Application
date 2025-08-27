@@ -1,86 +1,247 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import { storageUtils } from '../utils/storageUtils'
 
+// Theme Context
 const ThemeContext = createContext()
 
-export const useTheme = () => {
-    const context = useContext(ThemeContext)
-    if (!context) {
-        throw new Error('useTheme must be used within a ThemeProvider')
-    }
-    return context
+// Theme types
+export const THEMES = {
+    LIGHT: 'light',
+    DARK: 'dark',
+    SYSTEM: 'system'
 }
 
+// Action types
+const THEME_ACTIONS = {
+    SET_THEME: 'SET_THEME',
+    SET_SYSTEM_PREFERENCE: 'SET_SYSTEM_PREFERENCE',
+    TOGGLE_THEME: 'TOGGLE_THEME'
+}
+
+// Initial state
+const initialState = {
+    theme: THEMES.SYSTEM, // User's preference: light, dark, or system
+    systemPreference: THEMES.LIGHT, // System's actual preference
+    actualTheme: THEMES.LIGHT, // The theme actually being applied
+    isSystemDark: false
+}
+
+// Theme reducer
+const themeReducer = (state, action) => {
+    switch (action.type) {
+        case THEME_ACTIONS.SET_THEME: {
+            const newTheme = action.payload
+            let actualTheme = newTheme
+
+            // If system theme is selected, use system preference
+            if (newTheme === THEMES.SYSTEM) {
+                actualTheme = state.systemPreference
+            }
+
+            return {
+                ...state,
+                theme: newTheme,
+                actualTheme
+            }
+        }
+
+        case THEME_ACTIONS.SET_SYSTEM_PREFERENCE: {
+            const systemPreference = action.payload
+            let actualTheme = state.actualTheme
+
+            // If user has selected system theme, update actual theme
+            if (state.theme === THEMES.SYSTEM) {
+                actualTheme = systemPreference
+            }
+
+            return {
+                ...state,
+                systemPreference,
+                actualTheme,
+                isSystemDark: systemPreference === THEMES.DARK
+            }
+        }
+
+        case THEME_ACTIONS.TOGGLE_THEME: {
+            const newTheme = state.actualTheme === THEMES.LIGHT
+                             ? THEMES.DARK
+                             : THEMES.LIGHT
+
+            return {
+                ...state,
+                theme: newTheme,
+                actualTheme: newTheme
+            }
+        }
+
+        default:
+            return state
+    }
+}
+
+// Theme Provider Component
 export const ThemeProvider = ({ children }) => {
-    const [theme, setThemeState] = useState(() => {
-        // Check localStorage first
-        const saved = localStorage.getItem('theme')
-        if (saved && ['light', 'dark', 'system'].includes(saved)) {
-            return saved
-        }
+    const [state, dispatch] = useReducer(themeReducer, initialState)
 
-        // Default to system preference
-        return 'system'
-    })
+    // Apply theme to DOM
+    const applyTheme = (theme) => {
+        const root = window.document.documentElement
 
-    const [resolvedTheme, setResolvedTheme] = useState('light')
+        // Remove existing theme classes
+        root.classList.remove('light', 'dark')
 
-    // Resolve system theme
-    useEffect(() => {
-        const updateResolvedTheme = () => {
-            if (theme === 'system') {
-                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-                setResolvedTheme(systemTheme)
-            } else {
-                setResolvedTheme(theme)
-            }
-        }
-
-        updateResolvedTheme()
-
-        // Listen for system theme changes
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-        const handleChange = () => {
-            if (theme === 'system') {
-                updateResolvedTheme()
-            }
-        }
-
-        mediaQuery.addEventListener('change', handleChange)
-        return () => mediaQuery.removeEventListener('change', handleChange)
-    }, [theme])
-
-    // Apply theme to document
-    useEffect(() => {
-        const root = document.documentElement
-
-        if (resolvedTheme === 'dark') {
+        // Apply new theme
+        if (theme === THEMES.DARK) {
             root.classList.add('dark')
+            root.setAttribute('data-theme', 'dark')
         } else {
-            root.classList.remove('dark')
+            root.classList.add('light')
+            root.setAttribute('data-theme', 'light')
         }
-    }, [resolvedTheme])
-
-    const setTheme = (newTheme) => {
-        setThemeState(newTheme)
-        localStorage.setItem('theme', newTheme)
     }
 
+    // Initialize theme on mount
+    useEffect(() => {
+        const savedTheme = storageUtils.getTheme()
+        const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches
+                                 ? THEMES.DARK
+                                 : THEMES.LIGHT
+
+        // Set system preference
+        dispatch({
+                     type: THEME_ACTIONS.SET_SYSTEM_PREFERENCE,
+                     payload: systemPreference
+                 })
+
+        // Set user theme preference
+        if (savedTheme && Object.values(THEMES).includes(savedTheme)) {
+            dispatch({
+                         type: THEME_ACTIONS.SET_THEME,
+                         payload: savedTheme
+                     })
+        } else {
+            // Default to system theme
+            dispatch({
+                         type: THEME_ACTIONS.SET_THEME,
+                         payload: THEMES.SYSTEM
+                     })
+        }
+    }, [])
+
+    // Listen for system theme changes
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+        const handleSystemThemeChange = (e) => {
+            const systemPreference = e.matches ? THEMES.DARK : THEMES.LIGHT
+
+            dispatch({
+                         type: THEME_ACTIONS.SET_SYSTEM_PREFERENCE,
+                         payload: systemPreference
+                     })
+        }
+
+        mediaQuery.addEventListener('change', handleSystemThemeChange)
+
+        return () => {
+            mediaQuery.removeEventListener('change', handleSystemThemeChange)
+        }
+    }, [])
+
+    // Apply theme when actualTheme changes
+    useEffect(() => {
+        applyTheme(state.actualTheme)
+    }, [state.actualTheme])
+
+    // Save theme preference when it changes
+    useEffect(() => {
+        if (state.theme !== THEMES.SYSTEM || storageUtils.getTheme()) {
+            storageUtils.setTheme(state.theme)
+        }
+    }, [state.theme])
+
+    // Set theme function
+    const setTheme = (theme) => {
+        if (Object.values(THEMES).includes(theme)) {
+            dispatch({
+                         type: THEME_ACTIONS.SET_THEME,
+                         payload: theme
+                     })
+        }
+    }
+
+    // Toggle between light and dark (skips system)
     const toggleTheme = () => {
-        if (theme === 'light') {
-            setTheme('dark')
-        } else if (theme === 'dark') {
-            setTheme('system')
-        } else {
-            setTheme('light')
+        dispatch({ type: THEME_ACTIONS.TOGGLE_THEME })
+    }
+
+    // Get theme display name
+    const getThemeDisplayName = (theme = state.theme) => {
+        switch (theme) {
+            case THEMES.LIGHT:
+                return 'Light'
+            case THEMES.DARK:
+                return 'Dark'
+            case THEMES.SYSTEM:
+                return `System (${state.systemPreference === THEMES.DARK ? 'Dark' : 'Light'})`
+            default:
+                return 'Unknown'
         }
     }
 
+    // Check if theme is dark
+    const isDark = () => {
+        return state.actualTheme === THEMES.DARK
+    }
+
+    // Check if theme is light
+    const isLight = () => {
+        return state.actualTheme === THEMES.LIGHT
+    }
+
+    // Check if using system theme
+    const isSystemTheme = () => {
+        return state.theme === THEMES.SYSTEM
+    }
+
+    // Get CSS variables for current theme
+    const getThemeVars = () => {
+        return state.actualTheme === THEMES.DARK
+               ? {
+                '--bg-primary': '17 24 39',
+                '--bg-secondary': '31 41 55',
+                '--text-primary': '249 250 251',
+                '--text-secondary': '209 213 219'
+            }
+               : {
+                '--bg-primary': '255 255 255',
+                '--bg-secondary': '249 250 251',
+                '--text-primary': '17 24 39',
+                '--text-secondary': '75 85 99'
+            }
+    }
+
+    // Context value
     const value = {
-        theme,
-        resolvedTheme,
+        // State
+        theme: state.theme,
+        actualTheme: state.actualTheme,
+        systemPreference: state.systemPreference,
+        isSystemDark: state.isSystemDark,
+
+        // Actions
         setTheme,
         toggleTheme,
-        isDark: resolvedTheme === 'dark'
+
+        // Utilities
+        getThemeDisplayName,
+        isDark,
+        isLight,
+        isSystemTheme,
+        getThemeVars,
+
+        // Theme constants
+        themes: THEMES
     }
 
     return (
@@ -89,3 +250,16 @@ export const ThemeProvider = ({ children }) => {
         </ThemeContext.Provider>
     )
 }
+
+// Custom hook to use theme context
+export const useTheme = () => {
+    const context = useContext(ThemeContext)
+
+    if (context === undefined) {
+        throw new Error('useTheme must be used within a ThemeProvider')
+    }
+
+    return context
+}
+
+export default ThemeContext

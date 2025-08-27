@@ -7,6 +7,7 @@ import Card from '../components/ui/Card'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/ui/Toast'
 import { validateEmail } from '../utils/validators'
+import PermitDetails from "@/pages/PermitDetails.jsx";
 
 const Login = () => {
     const navigate = useNavigate()
@@ -162,3 +163,5 @@ const Login = () => {
         </div>
     )
 }
+
+export default Login

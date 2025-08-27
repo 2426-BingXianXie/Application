@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertTriangle, RefreshCw, Home, Mail } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react'
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -8,140 +8,186 @@ class ErrorBoundary extends React.Component {
             hasError: false,
             error: null,
             errorInfo: null,
+            eventId: null
         }
     }
 
     static getDerivedStateFromError(error) {
         // Update state so the next render will show the fallback UI
-        return { hasError: true }
+        return {
+            hasError: true,
+            error
+        }
     }
 
     componentDidCatch(error, errorInfo) {
+        // Generate unique error ID for tracking
+        const eventId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+        this.setState({
+                          error,
+                          errorInfo,
+                          eventId
+                      })
+
         // Log error details
-        this.setState({
-                          error: error,
-                          errorInfo: errorInfo,
-                      })
+        console.error('ErrorBoundary caught an error:', {
+            error: error.toString(),
+            errorInfo,
+            eventId,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            url: window.location.href
+        })
 
-        // Log to console in development
-        if (import.meta.env.VITE_ENABLE_DEBUG === 'true') {
-            console.error('ErrorBoundary caught an error:', error, errorInfo)
+        // In production, you might want to send this to an error reporting service
+        if (import.meta.env.PROD) {
+            this.reportError(error, errorInfo, eventId)
         }
-
-        // In production, you might want to log to an error reporting service
-        // logErrorToService(error, errorInfo)
     }
 
-    handleRetry = () => {
-        this.setState({
-                          hasError: false,
-                          error: null,
-                          errorInfo: null,
-                      })
+    reportError = async (error, errorInfo, eventId) => {
+        try {
+            // This would be replaced with your actual error reporting service
+            // e.g., Sentry, LogRocket, or custom endpoint
+            await fetch('/api/v1/errors/report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                                         eventId,
+                                         error: error.toString(),
+                                         stack: error.stack,
+                                         componentStack: errorInfo.componentStack,
+                                         timestamp: new Date().toISOString(),
+                                         userAgent: navigator.userAgent,
+                                         url: window.location.href,
+                                         userId: this.getUserId()
+                                     })
+            })
+        } catch (reportingError) {
+            console.error('Failed to report error:', reportingError)
+        }
     }
 
-    handleGoHome = () => {
-        window.location.href = '/'
+    getUserId = () => {
+        try {
+            const user = JSON.parse(localStorage.getItem('user'))
+            return user?.id || 'anonymous'
+        } catch {
+            return 'anonymous'
+        }
     }
 
     handleReload = () => {
         window.location.reload()
     }
 
+    handleGoHome = () => {
+        window.location.href = '/'
+    }
+
+    handleCopyError = () => {
+        const errorText = `
+Error ID: ${this.state.eventId}
+Time: ${new Date().toISOString()}
+Error: ${this.state.error?.toString() || 'Unknown error'}
+Stack: ${this.state.error?.stack || 'No stack trace'}
+Component Stack: ${this.state.errorInfo?.componentStack || 'No component stack'}
+URL: ${window.location.href}
+User Agent: ${navigator.userAgent}
+    `.trim()
+
+        navigator.clipboard.writeText(errorText).then(() => {
+            alert('Error details copied to clipboard')
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea')
+            textArea.value = errorText
+            document.body.appendChild(textArea)
+            textArea.select()
+            document.execCommand('copy')
+            document.body.removeChild(textArea)
+            alert('Error details copied to clipboard')
+        })
+    }
+
     render() {
         if (this.state.hasError) {
+            // Custom error UI
             return (
-                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
-                    <div className="max-w-lg w-full">
+                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+                    <div className="max-w-md w-full">
                         {/* Error Icon */}
-                        <div className="text-center mb-8">
-                            <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-4">
-                                <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                        <div className="text-center mb-6">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+                                <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
                             </div>
-
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                                 Something went wrong
                             </h1>
-
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                We're sorry, but something unexpected happened.
-                                Our team has been notified and is working on a fix.
+                            <p className="text-gray-600 dark:text-gray-400">
+                                We're sorry, but something unexpected happened. Our team has been notified.
                             </p>
                         </div>
 
+                        {/* Error Details (Development Only) */}
+                        {import.meta.env.DEV && (
+                            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">
+                                    Error Details (Development)
+                                </h3>
+                                <div className="text-xs text-red-700 dark:text-red-300 font-mono break-all">
+                                    <p><strong>Error ID:</strong> {this.state.eventId}</p>
+                                    <p><strong>Message:</strong> {this.state.error?.message}</p>
+                                    {this.state.error?.stack && (
+                                        <details className="mt-2">
+                                            <summary className="cursor-pointer">Stack Trace</summary>
+                                            <pre className="mt-2 text-xs overflow-x-auto">
+                        {this.state.error.stack}
+                      </pre>
+                                        </details>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Action Buttons */}
-                        <div className="space-y-3 mb-8">
+                        <div className="space-y-3">
                             <button
-                                onClick={this.handleRetry}
-                                className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                onClick={this.handleReload}
+                                className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                             >
-                                <RefreshCw className="w-4 h-4 mr-2" />
-                                Try Again
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Reload Page
                             </button>
 
                             <button
                                 onClick={this.handleGoHome}
-                                className="w-full flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                             >
-                                <Home className="w-4 h-4 mr-2" />
-                                Go to Homepage
+                                <Home className="h-4 w-4 mr-2" />
+                                Go to Dashboard
                             </button>
 
                             <button
-                                onClick={this.handleReload}
-                                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                onClick={this.handleCopyError}
+                                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                             >
-                                <RefreshCw className="w-4 h-4 mr-2" />
-                                Reload Page
+                                <Bug className="h-4 w-4 mr-2" />
+                                Copy Error Details
                             </button>
                         </div>
 
-                        {/* Support Info */}
-                        <div className="text-center border-t border-gray-200 dark:border-gray-700 pt-6">
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                If the problem persists, please contact support:
+                        {/* Error ID for Support */}
+                        <div className="mt-6 text-center">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Error ID: <code className="font-mono">{this.state.eventId}</code>
                             </p>
-                            <a
-                                href="mailto:support@permitmanagement.com"
-                                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500 transition-colors"
-                            >
-                                <Mail className="w-4 h-4 mr-1" />
-                                support@permitmanagement.com
-                            </a>
-                        </div>
-
-                        {/* Error Details (Development Only) */}
-                        {import.meta.env.VITE_ENABLE_DEBUG === 'true' && this.state.error && (
-                            <details className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
-                                <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Error Details (Development)
-                                </summary>
-
-                                <div className="text-xs space-y-2">
-                                    <div>
-                                        <strong className="text-red-600 dark:text-red-400">Error:</strong>
-                                        <pre className="mt-1 whitespace-pre-wrap text-gray-600 dark:text-gray-400">
-                      {this.state.error && this.state.error.toString()}
-                    </pre>
-                                    </div>
-
-                                    {this.state.errorInfo && (
-                                        <div>
-                                            <strong className="text-red-600 dark:text-red-400">Stack Trace:</strong>
-                                            <pre className="mt-1 whitespace-pre-wrap text-gray-600 dark:text-gray-400 overflow-x-auto">
-                        {this.state.errorInfo.componentStack}
-                      </pre>
-                                        </div>
-                                    )}
-                                </div>
-                            </details>
-                        )}
-
-                        {/* Environment Info */}
-                        <div className="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
-                            <div>Environment: {import.meta.env.VITE_APP_ENVIRONMENT}</div>
-                            <div>Version: {import.meta.env.VITE_APP_VERSION}</div>
-                            <div>Timestamp: {new Date().toLocaleString()}</div>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                Please include this ID when contacting support
+                            </p>
                         </div>
                     </div>
                 </div>

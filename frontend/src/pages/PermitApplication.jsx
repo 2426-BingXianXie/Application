@@ -1,261 +1,344 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, CheckCircle, Building, Zap } from 'lucide-react'
-import ContactInfoForm from '../components/forms/ContactInfoForm'
-import LocationInfoForm from '../components/forms/LocationInfoForm'
-import BuildingPermitForm from '../components/forms/BuildingPermitForm'
-import GasPermitForm from '../components/forms/GasPermitForm'
-import StepIndicator from '../components/forms/StepIndicator'
-import { usePermits } from '../hooks/usePermits'
-import { useNotifications } from '../hooks/useNotifications'
+import { Building, Flame, ArrowLeft, Save, Send, AlertCircle } from 'lucide-react'
+import usePermitForm from '../hooks/usePermitForm'
+import Button from '../components/ui/Button'
+import PermitFormWizard from '../components/forms/PermitFormWizard'
+import { useNotifications } from '../context/NotificationContext'
 
 const PermitApplication = () => {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const permitType = searchParams.get('type') || 'building'
-    const [currentStep, setCurrentStep] = useState(0)
-    const [formData, setFormData] = useState({
-                                                 permitType,
-                                                 contactInfo: {},
-                                                 locationInfo: {},
-                                                 permitInfo: {},
-                                                 contractorLicense: {},
-                                                 debrisDisposal: {},
-                                             })
+    const { showSuccess, showError } = useNotifications()
 
-    const { useCreatePermit } = usePermits(permitType)
-    const { notifyPermitStatusChange } = useNotifications()
-    const createPermitMutation = useCreatePermit()
+    // Get permit type from URL params or default to building
+    const initialPermitType = searchParams.get('type') || 'building'
+    const [permitType, setPermitType] = useState(initialPermitType)
 
-    // Define steps based on permit type
-    const getSteps = () => {
-        const baseSteps = [
-            { id: 'permit-type', title: 'Permit Type', icon: Building },
-            { id: 'contact', title: 'Contact Information', icon: 'User' },
-            { id: 'location', title: 'Property Location', icon: 'MapPin' },
-        ]
+    // Use form hook
+    const {
+        formData,
+        currentStep,
+        errors,
+        isDirty,
+        isSubmitting,
+        autoSaveEnabled,
+        updateField,
+        getFieldValue,
+        nextStep,
+        prevStep,
+        goToStep,
+        submitForm,
+        saveAsDraft,
+        resetForm,
+        validateCurrentStep,
+        isStepAccessible,
+        getProgress,
+        isReadyForSubmission,
+        getValidationSummary,
+        toggleAutoSave
+    } = usePermitForm(permitType)
 
-        if (permitType === 'building') {
-            return [
-                ...baseSteps,
-                { id: 'building-details', title: 'Building Details', icon: Building },
-                { id: 'contractor', title: 'Contractor Info', icon: 'Shield' },
-                { id: 'debris', title: 'Debris Disposal', icon: 'Trash2' },
-                { id: 'review', title: 'Review & Submit', icon: CheckCircle },
-            ]
-        } else if (permitType === 'gas') {
-            return [
-                ...baseSteps,
-                { id: 'gas-details', title: 'Gas Installation', icon: Zap },
-                { id: 'gas-contractor', title: 'Gas Contractor', icon: 'Shield' },
-                { id: 'review', title: 'Review & Submit', icon: CheckCircle },
-            ]
+    // Permit type options
+    const permitTypeOptions = [
+        {
+            value: 'building',
+            label: 'Building Permit',
+            description: 'For construction, renovation, and building modifications',
+            icon: Building,
+            color: 'blue'
+        },
+        {
+            value: 'gas',
+            label: 'Gas Permit',
+            description: 'For gas line installation and appliance connections',
+            icon: Flame,
+            color: 'orange'
+        }
+    ]
+
+    // Handle permit type change
+    const handlePermitTypeChange = (newType) => {
+        if (isDirty) {
+            const confirmed = window.confirm(
+                'Changing permit type will reset your current form. Are you sure?'
+            )
+            if (!confirmed) return
         }
 
-        return baseSteps
+        setPermitType(newType)
+        resetForm()
+
+        // Update URL
+        const newParams = new URLSearchParams(searchParams)
+        newParams.set('type', newType)
+        navigate(`/apply?${newParams.toString()}`, { replace: true })
     }
 
-    const steps = getSteps()
-
-    const updateFormData = (stepData) => {
-        setFormData(prev => ({
-            ...prev,
-            ...stepData
-        }))
-    }
-
-    const nextStep = () => {
-        if (currentStep < steps.length - 1) {
-            setCurrentStep(currentStep + 1)
-        }
-    }
-
-    const prevStep = () => {
-        if (currentStep > 0) {
-            setCurrentStep(currentStep - 1)
-        }
-    }
-
+    // Handle form submission
     const handleSubmit = async () => {
         try {
-            const result = await createPermitMutation.mutateAsync(formData)
-            notifyPermitStatusChange(result.permitNumber, 'SUBMITTED')
-            navigate(`/permit/${result.permitId}`)
+            const result = await submitForm(false)
+            if (result.success) {
+                // Navigation will be handled by the hook
+            }
         } catch (error) {
-            console.error('Failed to submit permit:', error)
+            showError('Submission Error', 'An unexpected error occurred during submission')
         }
     }
 
-    const renderPermitTypeSelection = () => (
-        <div className="space-y-6">
-            <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    Select Permit Type
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                    Choose the type of permit you need to apply for
-                </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div
-                    className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                        permitType === 'building'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
-                    onClick={() => {
-                        setFormData(prev => ({ ...prev, permitType: 'building' }))
-                        navigate('/apply?type=building')
-                    }}
-                >
-                    <div className="text-center">
-                        <Building className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                            Building Permit
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            For construction, renovation, additions, and structural work
-                        </p>
-                    </div>
-                </div>
-
-                <div
-                    className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                        permitType === 'gas'
-                        ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
-                    onClick={() => {
-                        setFormData(prev => ({ ...prev, permitType: 'gas' }))
-                        navigate('/apply?type=gas')
-                    }}
-                >
-                    <div className="text-center">
-                        <Zap className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                            Gas Permit
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            For gas line installation, appliances, and gas-related work
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-
-    const renderStepContent = () => {
-        const step = steps[currentStep]
-
-        switch (step?.id) {
-            case 'permit-type':
-                return renderPermitTypeSelection()
-            case 'contact':
-                return (
-                    <ContactInfoForm
-                        data={formData.contactInfo}
-                        onChange={(data) => updateFormData({ contactInfo: data })}
-                    />
-                )
-            case 'location':
-                return (
-                    <LocationInfoForm
-                        data={formData.locationInfo}
-                        onChange={(data) => updateFormData({ locationInfo: data })}
-                    />
-                )
-            case 'building-details':
-                return (
-                    <BuildingPermitForm
-                        data={formData.permitInfo}
-                        onChange={(data) => updateFormData({ permitInfo: data })}
-                    />
-                )
-            case 'gas-details':
-                return (
-                    <GasPermitForm
-                        data={formData.permitInfo}
-                        onChange={(data) => updateFormData({ permitInfo: data })}
-                    />
-                )
-            case 'review':
-                return renderReviewStep()
-            default:
-                return <div>Step not implemented yet</div>
+    // Handle save as draft
+    const handleSaveAsDraft = async () => {
+        try {
+            const result = await saveAsDraft()
+            if (result.success) {
+                showSuccess('Draft Saved', 'Your permit application has been saved as a draft')
+            }
+        } catch (error) {
+            showError('Save Error', 'Failed to save draft')
         }
     }
 
-    const renderReviewStep = () => (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Review Your Application
-            </h2>
+    // Handle back to dashboard
+    const handleBackToDashboard = () => {
+        if (isDirty) {
+            const confirmed = window.confirm(
+                'You have unsaved changes. Are you sure you want to leave?'
+            )
+            if (!confirmed) return
+        }
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Application Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <strong>Permit Type:</strong> {permitType === 'building' ? 'Building Permit' : 'Gas Permit'}
-                    </div>
-                    <div>
-                        <strong>Applicant:</strong> {formData.contactInfo.firstName} {formData.contactInfo.lastName}
-                    </div>
-                    <div>
-                        <strong>Email:</strong> {formData.contactInfo.email}
-                    </div>
-                    <div>
-                        <strong>Phone:</strong> {formData.contactInfo.phone}
-                    </div>
-                </div>
+        navigate('/dashboard')
+    }
 
-                <button
-                    onClick={handleSubmit}
-                    disabled={createPermitMutation.isPending}
-                    className="mt-6 w-full bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
-                >
-                    {createPermitMutation.isPending ? 'Submitting...' : 'Submit Application'}
-                </button>
-            </div>
-        </div>
-    )
+    // Get validation summary for current state
+    const validationSummary = getValidationSummary()
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Progress Indicator */}
-            <StepIndicator
-                steps={steps}
-                currentStep={currentStep}
-                className="mb-8"
-            />
-
-            {/* Form Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-                {renderStepContent()}
-
-                {/* Navigation Buttons */}
-                {steps[currentStep]?.id !== 'permit-type' && (
-                    <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                            onClick={prevStep}
-                            disabled={currentStep === 0}
-                            className="flex items-center px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronLeft className="w-4 h-4 mr-1" />
-                            Back
-                        </button>
-
-                        {currentStep < steps.length - 1 && (
-                            <button
-                                onClick={nextStep}
-                                className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Header */}
+            <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center">
+                            <Button
+                                variant="ghost"
+                                onClick={handleBackToDashboard}
+                                startIcon={<ArrowLeft className="h-4 w-4" />}
+                                className="mr-4"
                             >
-                                Next
-                                <ChevronRight className="w-4 h-4 ml-1" />
-                            </button>
+                                Back to Dashboard
+                            </Button>
+
+                            <div>
+                                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                    {permitTypeOptions.find(opt => opt.value === permitType)?.label} Application
+                                </h1>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Step {currentStep + 1} of {permitType === 'building' ? 7 : 6}
+                                    {getProgress() > 0 && ` • ${getProgress()}% complete`}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Header Actions */}
+                        <div className="flex items-center space-x-3">
+                            {/* Auto-save indicator */}
+                            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <div className={`w-2 h-2 rounded-full mr-2 ${
+                                    autoSaveEnabled ? 'bg-green-400' : 'bg-gray-400'
+                                }`} />
+                                {autoSaveEnabled ? 'Auto-save enabled' : 'Auto-save disabled'}
+                            </div>
+
+                            {/* Save Draft Button */}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleSaveAsDraft}
+                                disabled={isSubmitting}
+                                startIcon={<Save className="h-4 w-4" />}
+                            >
+                                Save Draft
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Permit Type Selector */}
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Permit Type:
+            </span>
+
+                        <div className="flex items-center space-x-2">
+                            {permitTypeOptions.map((option) => {
+                                const Icon = option.icon
+                                const isSelected = option.value === permitType
+
+                                return (
+                                    <button
+                                        key={option.value}
+                                        onClick={() => handlePermitTypeChange(option.value)}
+                                        className={`
+                      flex items-center px-4 py-2 text-sm font-medium rounded-lg border transition-colors
+                      ${isSelected
+                        ? `border-${option.color}-300 bg-${option.color}-50 text-${option.color}-700 dark:bg-${option.color}-900 dark:text-${option.color}-200`
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                                        }
+                    `}
+                                    >
+                                        <Icon className="h-4 w-4 mr-2" />
+                                        {option.label}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Type Description */}
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        {permitTypeOptions.find(opt => opt.value === permitType)?.description}
+                    </p>
+                </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div
+                            className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
+                            style={{ width: `${getProgress()}%` }}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Validation Summary */}
+            {validationSummary.hasErrors && (
+                <div className="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                        <div className="flex items-center">
+                            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                            <span className="text-sm text-red-700 dark:text-red-300">
+                {validationSummary.errorCount} validation error{validationSummary.errorCount !== 1 ? 's' : ''} found
+              </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Main Form Content */}
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <PermitFormWizard
+                        permitType={permitType}
+                        formData={formData}
+                        currentStep={currentStep}
+                        completedSteps={completedSteps}
+                        errors={errors}
+                        updateField={updateField}
+                        getFieldValue={getFieldValue}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        goToStep={goToStep}
+                        isStepAccessible={isStepAccessible}
+                    />
+
+                    {/* Form Footer */}
+                    <div className="border-t border-gray-200 dark:border-gray-700 px-8 py-6">
+                        <div className="flex items-center justify-between">
+                            {/* Progress Info */}
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                                Step {currentStep + 1} of {permitType === 'building' ? 7 : 6}
+                                {isDirty && (
+                                    <span className="ml-2 text-amber-600 dark:text-amber-400">
+                    • Unsaved changes
+                  </span>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center space-x-3">
+                                {/* Previous Button */}
+                                <Button
+                                    variant="secondary"
+                                    onClick={prevStep}
+                                    disabled={currentStep === 0}
+                                >
+                                    Previous
+                                </Button>
+
+                                {/* Next/Submit Button */}
+                                {currentStep < (permitType === 'building' ? 6 : 5) ? (
+                                    <Button
+                                        variant="primary"
+                                        onClick={nextStep}
+                                    >
+                                        Next
+                                    </Button>
+                                ) : (
+                                     <div className="flex items-center space-x-2">
+                                         <Button
+                                             variant="secondary"
+                                             onClick={handleSaveAsDraft}
+                                             disabled={isSubmitting}
+                                             startIcon={<Save className="h-4 w-4" />}
+                                         >
+                                             Save Draft
+                                         </Button>
+
+                                         <Button
+                                             variant="success"
+                                             onClick={handleSubmit}
+                                             loading={isSubmitting}
+                                             disabled={!isReadyForSubmission() || validationSummary.hasErrors}
+                                             startIcon={<Send className="h-4 w-4" />}
+                                         >
+                                             Submit Application
+                                         </Button>
+                                     </div>
+                                 )}
+                            </div>
+                        </div>
+
+                        {/* Additional Info */}
+                        {!isReadyForSubmission() && currentStep >= (permitType === 'building' ? 6 : 5) && (
+                            <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-md border border-amber-200 dark:border-amber-800">
+                                <div className="flex items-start">
+                                    <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                                            Complete Required Steps
+                                        </h4>
+                                        <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                                            Please complete all required steps before submitting your application.
+                                            You can save your progress as a draft and return later.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
-                )}
+                </div>
+
+                {/* Help Text */}
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Need help? Contact us at{' '}
+                        <a href="mailto:permits@municipality.gov" className="text-blue-600 hover:text-blue-500">
+                            permits@municipality.gov
+                        </a>{' '}
+                        or call{' '}
+                        <a href="tel:555-123-4567" className="text-blue-600 hover:text-blue-500">
+                            (555) 123-4567
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
     )

@@ -1,184 +1,191 @@
 import React, { forwardRef, useState } from 'react'
-import { clsx } from 'clsx'
-import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react'
+import clsx from 'clsx'
 
 const Input = forwardRef(({
                               label,
                               type = 'text',
-                              placeholder,
-                              value,
-                              onChange,
-                              onBlur,
                               error,
                               success,
                               helperText,
                               required = false,
                               disabled = false,
-                              readOnly = false,
+                              placeholder,
                               startIcon,
                               endIcon,
                               className = '',
-                              inputClassName = '',
-                              size = 'md',
-                              variant = 'default',
-                              autoComplete,
-                              maxLength,
-                              pattern,
-                              min,
-                              max,
-                              step,
+                              containerClassName = '',
+                              labelClassName = '',
+                              value,
+                              onChange,
+                              onBlur,
+                              onFocus,
                               ...props
                           }, ref) => {
     const [showPassword, setShowPassword] = useState(false)
     const [isFocused, setIsFocused] = useState(false)
 
-    const isPassword = type === 'password'
-    const inputType = isPassword && showPassword ? 'text' : type
+    const isPasswordType = type === 'password'
+    const actualType = isPasswordType && showPassword ? 'text' : type
+    const hasError = Boolean(error)
+    const hasSuccess = Boolean(success)
 
-    const sizes = {
-        sm: 'px-3 py-1.5 text-sm',
-        md: 'px-3 py-2 text-sm',
-        lg: 'px-4 py-3 text-base'
-    }
-
-    const variants = {
-        default: 'border-gray-300 dark:border-gray-600',
-        filled: 'border-0 bg-gray-100 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600'
-    }
-
-    const inputClasses = clsx(
-        'block w-full rounded-md shadow-sm transition-all duration-200',
-        'bg-white dark:bg-gray-800 text-gray-900 dark:text-white',
-        'placeholder-gray-500 dark:placeholder-gray-400',
-        'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-        variants[variant],
-        sizes[size],
-        {
-            'border-red-500 dark:border-red-400 focus:ring-red-500 focus:border-red-500': error,
-            'border-green-500 dark:border-green-400 focus:ring-green-500 focus:border-green-500': success,
-            'opacity-50 cursor-not-allowed': disabled,
-            'cursor-default': readOnly,
-            'pl-10': startIcon,
-            'pr-10': endIcon || isPassword,
-        },
-        inputClassName
-    )
-
-    const handleChange = (e) => {
-        if (onChange) {
-            onChange(e)
-        }
-    }
-
-    const handleFocus = () => {
+    const handleFocus = (e) => {
         setIsFocused(true)
+        onFocus?.(e)
     }
 
     const handleBlur = (e) => {
         setIsFocused(false)
-        if (onBlur) {
-            onBlur(e)
-        }
+        onBlur?.(e)
     }
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword)
     }
 
+    // Input styles based on state
+    const inputClasses = clsx(
+        // Base styles
+        'w-full px-3 py-2 border rounded-md shadow-sm transition-colors duration-200',
+        'focus:outline-none focus:ring-2 focus:ring-offset-0',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-gray-800',
+        'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+
+        // Background and text
+        'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+
+        // Icon padding
+        startIcon && 'pl-10',
+        (endIcon || isPasswordType) && 'pr-10',
+
+        // State-based styles
+        hasError ? [
+            'border-red-300 dark:border-red-600',
+            'focus:border-red-500 focus:ring-red-500'
+        ] : hasSuccess ? [
+            'border-green-300 dark:border-green-600',
+            'focus:border-green-500 focus:ring-green-500'
+        ] : [
+            'border-gray-300 dark:border-gray-600',
+            'focus:border-blue-500 focus:ring-blue-500'
+        ],
+
+        // Custom classes
+        className
+    )
+
+    const labelClasses = clsx(
+        'block text-sm font-medium mb-2',
+        hasError ? 'text-red-700 dark:text-red-400' :
+        hasSuccess ? 'text-green-700 dark:text-green-400' :
+        'text-gray-700 dark:text-gray-300',
+        labelClassName
+    )
+
     return (
-        <div className={clsx('space-y-1', className)}>
+        <div className={clsx('w-full', containerClassName)}>
+            {/* Label */}
             {label && (
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className={labelClasses}>
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
             )}
 
+            {/* Input container */}
             <div className="relative">
+                {/* Start Icon */}
                 {startIcon && (
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400 text-sm">{startIcon}</span>
+                        <div className={clsx(
+                            'h-5 w-5',
+                            hasError ? 'text-red-400' :
+                            hasSuccess ? 'text-green-400' :
+                            isFocused ? 'text-blue-500' : 'text-gray-400'
+                        )}>
+                            {startIcon}
+                        </div>
                     </div>
                 )}
 
+                {/* Input field */}
                 <input
                     ref={ref}
-                    type={inputType}
+                    type={actualType}
                     value={value}
-                    onChange={handleChange}
+                    onChange={onChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
-                    placeholder={placeholder}
-                    required={required}
                     disabled={disabled}
-                    readOnly={readOnly}
+                    placeholder={placeholder}
                     className={inputClasses}
-                    autoComplete={autoComplete}
-                    maxLength={maxLength}
-                    pattern={pattern}
-                    min={min}
-                    max={max}
-                    step={step}
+                    aria-invalid={hasError}
+                    aria-describedby={
+                        error ? `${props.id || 'input'}-error` :
+                        helperText ? `${props.id || 'input'}-helper` :
+                        undefined
+                    }
                     {...props}
                 />
 
-                {/* Password Toggle */}
-                {isPassword && (
-                    <button
-                        type="button"
-                        onClick={togglePasswordVisibility}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        tabIndex={-1}
-                    >
-                        {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                        ) : (
-                             <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                         )}
-                    </button>
-                )}
+                {/* End Icon / Password Toggle */}
+                <div className="absolute inset-y-0 right-0 flex items-center">
+                    {/* Success/Error Icons */}
+                    {(hasError || hasSuccess) && !isPasswordType && (
+                        <div className="pr-3">
+                            {hasError ? (
+                                <AlertCircle className="h-5 w-5 text-red-400" />
+                            ) : (
+                                 <CheckCircle2 className="h-5 w-5 text-green-400" />
+                             )}
+                        </div>
+                    )}
 
-                {/* End Icon */}
-                {endIcon && !isPassword && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400 text-sm">{endIcon}</span>
-                    </div>
-                )}
+                    {/* Password Toggle */}
+                    {isPasswordType && (
+                        <button
+                            type="button"
+                            onClick={togglePasswordVisibility}
+                            className="pr-3 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                            tabIndex={-1}
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                 <Eye className="h-5 w-5" />
+                             )}
+                        </button>
+                    )}
 
-                {/* Status Icons */}
-                {error && !endIcon && !isPassword && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <AlertCircle className="h-4 w-4 text-red-500" />
-                    </div>
-                )}
-
-                {success && !endIcon && !isPassword && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                    </div>
-                )}
+                    {/* Custom End Icon */}
+                    {endIcon && !isPasswordType && !hasError && !hasSuccess && (
+                        <div className="pr-3 text-gray-400">
+                            {endIcon}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Helper Text */}
-            {(error || success || helperText) && (
-                <div className="flex items-start space-x-1">
-                    {error && (
-                        <>
-                            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                        </>
-                    )}
-
-                    {success && !error && (
-                        <>
-                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
-                        </>
-                    )}
-
-                    {helperText && !error && !success && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
-                    )}
+            {/* Helper text / Error message */}
+            {(error || helperText) && (
+                <div className="mt-2">
+                    {error ? (
+                        <p
+                            id={`${props.id || 'input'}-error`}
+                            className="text-sm text-red-600 dark:text-red-400 flex items-center"
+                        >
+                            <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
+                            {error}
+                        </p>
+                    ) : helperText ? (
+                        <p
+                            id={`${props.id || 'input'}-helper`}
+                            className="text-sm text-gray-500 dark:text-gray-400"
+                        >
+                            {helperText}
+                        </p>
+                    ) : null}
                 </div>
             )}
         </div>
@@ -186,5 +193,146 @@ const Input = forwardRef(({
 })
 
 Input.displayName = 'Input'
+
+// Textarea component
+export const Textarea = forwardRef(({
+                                        label,
+                                        error,
+                                        success,
+                                        helperText,
+                                        required = false,
+                                        disabled = false,
+                                        placeholder,
+                                        rows = 4,
+                                        resize = true,
+                                        className = '',
+                                        containerClassName = '',
+                                        labelClassName = '',
+                                        value,
+                                        onChange,
+                                        onBlur,
+                                        onFocus,
+                                        ...props
+                                    }, ref) => {
+    const [isFocused, setIsFocused] = useState(false)
+    const hasError = Boolean(error)
+    const hasSuccess = Boolean(success)
+
+    const handleFocus = (e) => {
+        setIsFocused(true)
+        onFocus?.(e)
+    }
+
+    const handleBlur = (e) => {
+        setIsFocused(false)
+        onBlur?.(e)
+    }
+
+    const textareaClasses = clsx(
+        // Base styles
+        'w-full px-3 py-2 border rounded-md shadow-sm transition-colors duration-200',
+        'focus:outline-none focus:ring-2 focus:ring-offset-0',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-gray-800',
+        'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+
+        // Background and text
+        'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+
+        // Resize behavior
+        resize ? 'resize-y' : 'resize-none',
+
+        // State-based styles
+        hasError ? [
+            'border-red-300 dark:border-red-600',
+            'focus:border-red-500 focus:ring-red-500'
+        ] : hasSuccess ? [
+            'border-green-300 dark:border-green-600',
+            'focus:border-green-500 focus:ring-green-500'
+        ] : [
+            'border-gray-300 dark:border-gray-600',
+            'focus:border-blue-500 focus:ring-blue-500'
+        ],
+
+        // Custom classes
+        className
+    )
+
+    const labelClasses = clsx(
+        'block text-sm font-medium mb-2',
+        hasError ? 'text-red-700 dark:text-red-400' :
+        hasSuccess ? 'text-green-700 dark:text-green-400' :
+        'text-gray-700 dark:text-gray-300',
+        labelClassName
+    )
+
+    return (
+        <div className={clsx('w-full', containerClassName)}>
+            {/* Label */}
+            {label && (
+                <label className={labelClasses}>
+                    {label}
+                    {required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+            )}
+
+            {/* Textarea container */}
+            <div className="relative">
+        <textarea
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            disabled={disabled}
+            placeholder={placeholder}
+            rows={rows}
+            className={textareaClasses}
+            aria-invalid={hasError}
+            aria-describedby={
+                error ? `${props.id || 'textarea'}-error` :
+                helperText ? `${props.id || 'textarea'}-helper` :
+                undefined
+            }
+            {...props}
+        />
+
+                {/* Success/Error Icons */}
+                {(hasError || hasSuccess) && (
+                    <div className="absolute top-3 right-3">
+                        {hasError ? (
+                            <AlertCircle className="h-5 w-5 text-red-400" />
+                        ) : (
+                             <CheckCircle2 className="h-5 w-5 text-green-400" />
+                         )}
+                    </div>
+                )}
+            </div>
+
+            {/* Helper text / Error message */}
+            {(error || helperText) && (
+                <div className="mt-2">
+                    {error ? (
+                        <p
+                            id={`${props.id || 'textarea'}-error`}
+                            className="text-sm text-red-600 dark:text-red-400 flex items-center"
+                        >
+                            <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
+                            {error}
+                        </p>
+                    ) : helperText ? (
+                        <p
+                            id={`${props.id || 'textarea'}-helper`}
+                            className="text-sm text-gray-500 dark:text-gray-400"
+                        >
+                            {helperText}
+                        </p>
+                    ) : null}
+                </div>
+            )}
+        </div>
+    )
+})
+
+Textarea.displayName = 'Textarea'
 
 export default Input

@@ -67,4 +67,4 @@ export const Unauthorized = () => {
     )
 }
 
-export default NotFound
+export default Unauthorized

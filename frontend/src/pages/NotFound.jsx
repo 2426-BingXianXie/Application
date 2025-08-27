@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Home, ArrowLeft, Search, Building } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
+import PermitDetails from "@/pages/PermitDetails.jsx";
 
 const NotFound = () => {
     const navigate = useNavigate()
@@ -84,3 +85,5 @@ const NotFound = () => {
         </div>
     )
 }
+
+export default NotFound
