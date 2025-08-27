@@ -1,4 +1,4 @@
-package main.java.com.permit.entity;
+package com.permit.entity;
 
 public class ContactInfo {
 }

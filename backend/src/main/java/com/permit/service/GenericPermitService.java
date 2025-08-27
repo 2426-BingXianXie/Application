@@ -1,4 +1,4 @@
-package main.java.com.permit.service;
+package com.permit.service;
 
 public class GenericPermitService {
 }
