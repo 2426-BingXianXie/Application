@@ -1,297 +1,634 @@
-/**
- * Validation utility functions
- * Centralized validation logic for forms and data
- */
+// validators.js - Enhanced validation utilities
 
 // Email validation
 export const validateEmail = (email) => {
-    const emailRegex = /^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
 }
 
-// Phone number validation
+// Phone validation (US format)
 export const validatePhone = (phone) => {
-    const cleanPhone = phone.replace(/[^\d]/g, '')
-    const phoneRegex = /^[1-9]\d{9}$/ // US phone number format
-    return phoneRegex.test(cleanPhone)
+    const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/
+    const digitsOnly = phone.replace(/\D/g, '')
+    return phoneRegex.test(phone) || digitsOnly.length === 10
+}
+
+// Format phone number
+export const formatPhoneNumber = (phone) => {
+    const digits = phone.replace(/\D/g, '')
+
+    if (digits.length === 0) return ''
+    if (digits.length <= 3) return `(${digits}`
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+    if (digits.length <= 10) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
 }
 
 // ZIP code validation
 export const validateZipCode = (zipCode) => {
-    const zipRegex = /^[0-9]{5}(-[0-9]{4})?$/
+    const zipRegex = /^\d{5}(-\d{4})?$/
     return zipRegex.test(zipCode)
 }
 
-// SSN validation
-export const validateSSN = (ssn) => {
-    const ssnRegex = /^\d{3}-\d{2}-\d{4}$/
-    return ssnRegex.test(ssn)
+// Required field validation
+export const validateRequired = (value, fieldName = 'Field') => {
+    if (value === null || value === undefined || value === '') {
+        return `${fieldName} is required`
+    }
+    if (typeof value === 'string' && value.trim() === '') {
+        return `${fieldName} is required`
+    }
+    return ''
+}
+
+// Minimum length validation
+export const validateMinLength = (value, minLength, fieldName = 'Field') => {
+    if (!value || value.length < minLength) {
+        return `${fieldName} must be at least ${minLength} characters long`
+    }
+    return ''
+}
+
+// Maximum length validation
+export const validateMaxLength = (value, maxLength, fieldName = 'Field') => {
+    if (value && value.length > maxLength) {
+        return `${fieldName} cannot exceed ${maxLength} characters`
+    }
+    return ''
+}
+
+// Numeric validation
+export const validateNumeric = (value, fieldName = 'Field', options = {}) => {
+    const { min, max, integer = false } = options
+
+    if (value === '' || value === null || value === undefined) {
+        return ''
+    }
+
+    const numValue = parseFloat(value)
+
+    if (isNaN(numValue)) {
+        return `${fieldName} must be a valid number`
+    }
+
+    if (integer && !Number.isInteger(numValue)) {
+        return `${fieldName} must be a whole number`
+    }
+
+    if (min !== undefined && numValue < min) {
+        return `${fieldName} must be at least ${min}`
+    }
+
+    if (max !== undefined && numValue > max) {
+        return `${fieldName} cannot exceed ${max}`
+    }
+
+    return ''
+}
+
+// Currency validation
+export const validateCurrency = (value, fieldName = 'Amount') => {
+    if (!value) return `${fieldName} is required`
+
+    const numericValue = value.toString().replace(/[$,]/g, '')
+    const amount = parseFloat(numericValue)
+
+    if (isNaN(amount)) {
+        return `${fieldName} must be a valid monetary amount`
+    }
+
+    if (amount < 0) {
+        return `${fieldName} cannot be negative`
+    }
+
+    if (amount > 10000000) {
+        return `${fieldName} cannot exceed $10,000,000`
+    }
+
+    return ''
+}
+
+// Date validation
+export const validateDate = (date, fieldName = 'Date', options = {}) => {
+    const { minDate, maxDate, required = false } = options
+
+    if (!date) {
+        return required ? `${fieldName} is required` : ''
+    }
+
+    const dateObj = new Date(date)
+
+    if (isNaN(dateObj.getTime())) {
+        return `${fieldName} must be a valid date`
+    }
+
+    if (minDate && dateObj < new Date(minDate)) {
+        return `${fieldName} cannot be earlier than ${formatDate(minDate)}`
+    }
+
+    if (maxDate && dateObj > new Date(maxDate)) {
+        return `${fieldName} cannot be later than ${formatDate(maxDate)}`
+    }
+
+    return ''
+}
+
+// Parcel ID validation
+export const validateParcelId = (parcelId) => {
+    if (!parcelId) return 'Parcel ID is required'
+
+    // Common parcel ID formats: PAR-001-001, 123-456-789, etc.
+    const parcelRegex = /^[A-Z0-9-]{3,20}$/i
+
+    if (!parcelRegex.test(parcelId)) {
+        return 'Please enter a valid Parcel ID format'
+    }
+
+    return ''
+}
+
+// License number validation
+export const validateLicenseNumber = (licenseNumber, licenseType = 'License') => {
+    if (!licenseNumber) return `${licenseType} number is required`
+
+    // Remove spaces and hyphens for validation
+    const cleaned = licenseNumber.replace(/[\s-]/g, '')
+
+    if (cleaned.length < 6) {
+        return `${licenseType} number must be at least 6 characters`
+    }
+
+    if (cleaned.length > 20) {
+        return `${licenseType} number cannot exceed 20 characters`
+    }
+
+    return ''
+}
+
+// BTU validation for gas permits
+export const validateBTU = (btu, fieldName = 'BTU Input') => {
+    const error = validateNumeric(btu, fieldName, { min: 1, max: 1000000, integer: true })
+    if (error) return error
+
+    const btuValue = parseInt(btu)
+
+    if (btuValue > 200000) {
+        // Warning for high BTU values
+        return {
+            type: 'warning',
+            message: 'High BTU installations may require special permits and utility coordination'
+        }
+    }
+
+    return ''
 }
 
 // Password strength validation
 export const validatePasswordStrength = (password) => {
-    const requirements = {
-        minLength: password.length >= 8,
-        hasLowercase: /[a-z]/.test(password),
-        hasUppercase: /[A-Z]/.test(password),
-        hasNumber: /\d/.test(password),
-        hasSpecialChar: /[^a-zA-Z\d]/.test(password),
+    if (!password) return 'Password is required'
+
+    const minLength = 8
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumbers = /\d/.test(password)
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+    const errors = []
+
+    if (password.length < minLength) {
+        errors.push(`At least ${minLength} characters`)
+    }
+    if (!hasUpperCase) {
+        errors.push('One uppercase letter')
+    }
+    if (!hasLowerCase) {
+        errors.push('One lowercase letter')
+    }
+    if (!hasNumbers) {
+        errors.push('One number')
+    }
+    if (!hasSpecialChar) {
+        errors.push('One special character')
     }
 
-    const score = Object.values(requirements).filter(Boolean).length
-    const isStrong = score >= 4
-
-    return {
-        isValid: isStrong,
-        score,
-        requirements,
-        feedback: generatePasswordFeedback(requirements)
+    if (errors.length > 0) {
+        return `Password must contain: ${errors.join(', ')}`
     }
+
+    return ''
 }
 
-const generatePasswordFeedback = (requirements) => {
-    const feedback = []
+// Contractor license validation
+export const validateContractorLicense = (licenseData) => {
+    const errors = {}
 
-    if (!requirements.minLength) feedback.push('At least 8 characters')
-    if (!requirements.hasLowercase) feedback.push('Include lowercase letters')
-    if (!requirements.hasUppercase) feedback.push('Include uppercase letters')
-    if (!requirements.hasNumber) feedback.push('Include numbers')
-    if (!requirements.hasSpecialChar) feedback.push('Include special characters')
-
-    return feedback
-}
-
-// URL validation
-export const validateUrl = (url) => {
-    try {
-        new URL(url)
-        return true
-    } catch {
-        return false
-    }
-}
-
-// Date validation
-export const validateDate = (date, minDate = null, maxDate = null) => {
-    const dateObj = new Date(date)
-
-    if (isNaN(dateObj.getTime())) {
-        return { isValid: false, message: 'Invalid date format' }
+    if (!licenseData.name?.trim()) {
+        errors.name = 'Contractor name is required'
     }
 
-    if (minDate && dateObj < new Date(minDate)) {
-        return { isValid: false, message: `Date must be after ${minDate}` }
+    if (!licenseData.licenseNumber?.trim()) {
+        errors.licenseNumber = 'License number is required'
     }
 
-    if (maxDate && dateObj > new Date(maxDate)) {
-        return { isValid: false, message: `Date must be before ${maxDate}` }
+    if (!licenseData.licenseType) {
+        errors.licenseType = 'License type is required'
     }
 
-    return { isValid: true, message: '' }
-}
+    if (!licenseData.expirationDate) {
+        errors.expirationDate = 'Expiration date is required'
+    } else {
+        const expDate = new Date(licenseData.expirationDate)
+        const today = new Date()
 
-// Future date validation
-export const validateFutureDate = (date) => {
-    const dateObj = new Date(date)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    return dateObj > today
-}
-
-// Past date validation
-export const validatePastDate = (date) => {
-    const dateObj = new Date(date)
-    const today = new Date()
-
-    return dateObj < today
-}
-
-// Numeric validation
-export const validateNumber = (value, min = null, max = null) => {
-    const num = parseFloat(value)
-
-    if (isNaN(num)) {
-        return { isValid: false, message: 'Must be a valid number' }
+        if (expDate <= today) {
+            errors.expirationDate = 'License has expired'
+        } else if (expDate <= new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)) {
+            errors.expirationDate = {
+                type: 'warning',
+                message: 'License expires within 30 days'
+            }
+        }
     }
 
-    if (min !== null && num < min) {
-        return { isValid: false, message: `Must be at least ${min}` }
+    const phoneError = validatePhone(licenseData.phoneNumber || '')
+    if (phoneError) {
+        errors.phoneNumber = phoneError
     }
 
-    if (max !== null && num > max) {
-        return { isValid: false, message: `Must be no more than ${max}` }
+    const emailError = validateEmail(licenseData.email || '')
+    if (licenseData.email && emailError) {
+        errors.email = emailError
     }
 
-    return { isValid: true, message: '' }
+    return errors
 }
 
-// Positive number validation
-export const validatePositiveNumber = (value) => {
-    const num = parseFloat(value)
-    return !isNaN(num) && num > 0
+// Building permit validation
+export const validateBuildingPermit = (permitData) => {
+    const errors = {}
+
+    // Basic required fields
+    if (!permitData.permitFor) {
+        errors.permitFor = 'Permit type is required'
+    }
+
+    const costError = validateCurrency(permitData.projectCost, 'Project cost')
+    if (costError) {
+        errors.projectCost = costError
+    }
+
+    if (!permitData.workDescription?.trim()) {
+        errors.workDescription = 'Work description is required'
+    } else if (permitData.workDescription.trim().length < 10) {
+        errors.workDescription = 'Please provide a detailed description (at least 10 characters)'
+    }
+
+    if (!permitData.buildingType) {
+        errors.buildingType = 'Building type is required'
+    }
+
+    if (!permitData.occupancyType) {
+        errors.occupancyType = 'Occupancy type is required'
+    }
+
+    // Professional services validation
+    const projectCost = parseFloat(permitData.projectCost?.replace(/[$,]/g, '') || 0)
+    const isLargeProject = projectCost > 50000
+    const isMajorWork = ['NEW_CONSTRUCTION', 'MAJOR_RENOVATION', 'STRUCTURAL_ADDITION'].includes(permitData.permitFor)
+
+    if ((isLargeProject || isMajorWork) && !permitData.hasArchitect) {
+        errors.hasArchitect = {
+            type: 'warning',
+            message: 'An architect may be required for this type of project'
+        }
+    }
+
+    if ((isLargeProject || isMajorWork) && !permitData.hasEngineer) {
+        errors.hasEngineer = {
+            type: 'warning',
+            message: 'An engineer may be required for this type of project'
+        }
+    }
+
+    return errors
 }
 
-// Integer validation
-export const validateInteger = (value) => {
-    const num = parseInt(value)
-    return !isNaN(num) && Number.isInteger(num)
+// Gas permit validation
+export const validateGasPermit = (permitData) => {
+    const errors = {}
+
+    if (!permitData.workType) {
+        errors.workType = 'Work type is required'
+    }
+
+    if (!permitData.gasType) {
+        errors.gasType = 'Gas type is required'
+    }
+
+    if (!permitData.installationType) {
+        errors.installationType = 'Installation type is required'
+    }
+
+    const btuError = validateBTU(permitData.totalBtuInput)
+    if (btuError) {
+        errors.totalBtuInput = btuError
+    }
+
+    const lengthError = validateNumeric(permitData.gasLineLengthFeet, 'Gas line length', { min: 1, max: 500, integer: true })
+    if (lengthError) {
+        errors.gasLineLengthFeet = lengthError
+    }
+
+    const applianceError = validateNumeric(permitData.numberOfAppliances, 'Number of appliances', { min: 1, max: 20, integer: true })
+    if (applianceError) {
+        errors.numberOfAppliances = applianceError
+    }
+
+    const costError = validateCurrency(permitData.projectCost, 'Project cost')
+    if (costError) {
+        errors.projectCost = costError
+    }
+
+    if (!permitData.workDescription?.trim()) {
+        errors.workDescription = 'Work description is required'
+    }
+
+    if (!permitData.applianceDetails?.trim()) {
+        errors.applianceDetails = 'Appliance details are required'
+    }
+
+    // Safety validation warnings
+    const btuValue = parseInt(permitData.totalBtuInput || 0)
+    const lineLength = parseInt(permitData.gasLineLengthFeet || 0)
+
+    if (btuValue > 200000) {
+        errors._warnings = errors._warnings || []
+        errors._warnings.push('High BTU installation may require utility company coordination')
+    }
+
+    if (lineLength > 100) {
+        errors._warnings = errors._warnings || []
+        errors._warnings.push('Long gas line runs may require additional inspection points')
+    }
+
+    if (permitData.gasType === 'PROPANE' && btuValue > 100000) {
+        errors._warnings = errors._warnings || []
+        errors._warnings.push('High BTU propane installations require special safety considerations')
+    }
+
+    return errors
+}
+
+// Complete form validation
+export const validatePermitForm = (formData, permitType) => {
+    const allErrors = {}
+
+    // Contact info validation
+    if (formData.contactInfo) {
+        const contactErrors = {}
+
+        if (!formData.contactInfo.firstName?.trim()) {
+            contactErrors.firstName = 'First name is required'
+        }
+
+        if (!formData.contactInfo.lastName?.trim()) {
+            contactErrors.lastName = 'Last name is required'
+        }
+
+        const emailError = validateEmail(formData.contactInfo.email || '')
+        if (!formData.contactInfo.email) {
+            contactErrors.email = 'Email is required'
+        } else if (emailError) {
+            contactErrors.email = 'Please enter a valid email address'
+        }
+
+        const phoneError = validatePhone(formData.contactInfo.phone || '')
+        if (!formData.contactInfo.phone) {
+            contactErrors.phone = 'Phone number is required'
+        } else if (phoneError) {
+            contactErrors.phone = 'Please enter a valid phone number'
+        }
+
+        if (!formData.contactInfo.address1?.trim()) {
+            contactErrors.address1 = 'Address is required'
+        }
+
+        if (!formData.contactInfo.city?.trim()) {
+            contactErrors.city = 'City is required'
+        }
+
+        if (!formData.contactInfo.state) {
+            contactErrors.state = 'State is required'
+        }
+
+        const zipError = validateZipCode(formData.contactInfo.zipCode || '')
+        if (!formData.contactInfo.zipCode) {
+            contactErrors.zipCode = 'ZIP code is required'
+        } else if (zipError) {
+            contactErrors.zipCode = 'Please enter a valid ZIP code'
+        }
+
+        if (Object.keys(contactErrors).length > 0) {
+            allErrors.contactInfo = contactErrors
+        }
+    }
+
+    // Location info validation
+    if (formData.locationInfo) {
+        const locationErrors = {}
+
+        const parcelError = validateParcelId(formData.locationInfo.parcelId)
+        if (parcelError) {
+            locationErrors.parcelId = parcelError
+        }
+
+        if (!formData.locationInfo.propertyAddress?.trim()) {
+            locationErrors.propertyAddress = 'Property address is required'
+        }
+
+        if (!formData.locationInfo.propertyOwnerName?.trim()) {
+            locationErrors.propertyOwnerName = 'Property owner name is required'
+        }
+
+        if (!formData.locationInfo.zoningClassification) {
+            locationErrors.zoningClassification = 'Zoning classification is required'
+        }
+
+        if (Object.keys(locationErrors).length > 0) {
+            allErrors.locationInfo = locationErrors
+        }
+    }
+
+    // Permit-specific validation
+    if (permitType === 'building' && formData.permitInfo) {
+        const permitErrors = validateBuildingPermit(formData.permitInfo)
+        if (Object.keys(permitErrors).length > 0) {
+            allErrors.permitInfo = permitErrors
+        }
+    }
+
+    if (permitType === 'gas' && formData.permitInfo) {
+        const permitErrors = validateGasPermit(formData.permitInfo)
+        if (Object.keys(permitErrors).length > 0) {
+            allErrors.permitInfo = permitErrors
+        }
+    }
+
+    // Contractor license validation
+    if (formData.contractorLicense && Object.keys(formData.contractorLicense).length > 0) {
+        const contractorErrors = validateContractorLicense(formData.contractorLicense)
+        if (Object.keys(contractorErrors).length > 0) {
+            allErrors.contractorLicense = contractorErrors
+        }
+    }
+
+    return allErrors
+}
+
+// Business rule validations
+export const validateBusinessRules = (formData, permitType) => {
+    const warnings = []
+    const errors = []
+
+    if (permitType === 'building') {
+        const projectCost = parseFloat(formData.permitInfo?.projectCost?.replace(/[$,]/g, '') || 0)
+
+        // Large project warnings
+        if (projectCost > 100000) {
+            warnings.push('Large projects may require additional review time')
+        }
+
+        // Professional services requirements
+        if (projectCost > 50000 && !formData.permitInfo?.hasArchitect) {
+            warnings.push('Projects over $50,000 typically require an architect')
+        }
+
+        // Contractor requirements
+        if (formData.contactInfo?.applicantType === 'CONTRACTOR' && !formData.contractorLicense?.licenseNumber) {
+            errors.push('Contractor license information is required for contractor applicants')
+        }
+
+        // Debris disposal requirements
+        if (['NEW_CONSTRUCTION', 'DEMOLITION', 'MAJOR_RENOVATION'].includes(formData.permitInfo?.permitFor)) {
+            if (!formData.debrisDisposal?.dumpsterLocation) {
+                warnings.push('Debris disposal plan may be required for this type of work')
+            }
+        }
+    }
+
+    if (permitType === 'gas') {
+        const btuInput = parseInt(formData.permitInfo?.totalBtuInput || 0)
+        const lineLength = parseInt(formData.permitInfo?.gasLineLengthFeet || 0)
+
+        // High BTU warnings
+        if (btuInput > 200000) {
+            warnings.push('High BTU installations require utility company coordination')
+        }
+
+        // Long line warnings
+        if (lineLength > 100) {
+            warnings.push('Long gas line runs may require additional inspection points')
+        }
+
+        // Pressure test requirements
+        if (btuInput > 50000 || lineLength > 50) {
+            if (!formData.permitInfo?.requiresPressureTest) {
+                warnings.push('Pressure testing may be required for this installation')
+            }
+        }
+
+        // Gas contractor license
+        if (!formData.gasContractorLicense?.licenseNumber) {
+            errors.push('Gas contractor license is required for all gas work')
+        }
+    }
+
+    return { warnings, errors }
 }
 
 // File validation
-export const validateFile = (file, allowedTypes = [], maxSize = 10485760) => {
-    const errors = []
+export const validateFile = (file, options = {}) => {
+    const {
+        maxSize = 10 * 1024 * 1024, // 10MB default
+        allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'],
+        required = false
+    } = options
 
     if (!file) {
-        errors.push('File is required')
-        return { isValid: false, errors }
+        return required ? 'File is required' : ''
     }
 
-    // Check file type
-    if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-        errors.push(`File type ${file.type} is not allowed`)
-    }
-
-    // Check file size
     if (file.size > maxSize) {
-        const maxSizeMB = (maxSize / 1024 / 1024).toFixed(1)
-        errors.push(`File size must be less than ${maxSizeMB}MB`)
+        return `File size cannot exceed ${Math.round(maxSize / 1024 / 1024)}MB`
     }
+
+    if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
+        const types = allowedTypes.map(type => type.split('/')[1].toUpperCase()).join(', ')
+        return `File must be one of: ${types}`
+    }
+
+    return ''
+}
+
+// Comprehensive form completion check
+export const isFormComplete = (formData, permitType) => {
+    const errors = validatePermitForm(formData, permitType)
+    return Object.keys(errors).length === 0
+}
+
+// Get validation summary
+export const getValidationSummary = (formData, permitType) => {
+    const errors = validatePermitForm(formData, permitType)
+    const { warnings } = validateBusinessRules(formData, permitType)
+
+    const totalErrors = Object.values(errors).reduce((count, sectionErrors) => {
+        return count + Object.keys(sectionErrors).length
+    }, 0)
+
+    const completedSections = []
+    const incompleteSections = []
+
+    if (!errors.contactInfo) completedSections.push('Contact Information')
+    else incompleteSections.push('Contact Information')
+
+    if (!errors.locationInfo) completedSections.push('Property Location')
+    else incompleteSections.push('Property Location')
+
+    if (!errors.permitInfo) completedSections.push(`${permitType.charAt(0).toUpperCase() + permitType.slice(1)} Details`)
+    else incompleteSections.push(`${permitType.charAt(0).toUpperCase() + permitType.slice(1)} Details`)
 
     return {
-        isValid: errors.length === 0,
-        errors
-    }
-}
-
-// License number validation
-export const validateLicenseNumber = (licenseNumber, permitType = 'building') => {
-    if (!licenseNumber || licenseNumber.length < 6) {
-        return { isValid: false, message: 'License number must be at least 6 characters' }
-    }
-
-    // Basic format validation (you can make this more specific)
-    const basicRegex = /^[A-Z0-9]{6,20}$/i
-    if (!basicRegex.test(licenseNumber)) {
-        return { isValid: false, message: 'Invalid license number format' }
-    }
-
-    return { isValid: true, message: '' }
-}
-
-// Permit number validation
-export const validatePermitNumber = (permitNumber) => {
-    if (!permitNumber) {
-        return { isValid: false, message: 'Permit number is required' }
-    }
-
-    // Format: BP123456789 or GP123456789
-    const permitRegex = /^(BP|GP|EP|PP)\d{9,}$/
-    if (!permitRegex.test(permitNumber)) {
-        return { isValid: false, message: 'Invalid permit number format' }
-    }
-
-    return { isValid: true, message: '' }
-}
-
-// Address validation
-export const validateAddress = (address) => {
-    if (!address || address.trim().length < 5) {
-        return { isValid: false, message: 'Address must be at least 5 characters' }
-    }
-
-    // Basic address pattern (number + street)
-    const addressRegex = /^\d+\s+.+/
-    if (!addressRegex.test(address.trim())) {
-        return { isValid: false, message: 'Address must include a street number' }
-    }
-
-    return { isValid: true, message: '' }
-}
-
-// Text length validation
-export const validateTextLength = (text, minLength = 0, maxLength = Infinity) => {
-    const length = text ? text.trim().length : 0
-
-    if (length < minLength) {
-        return { isValid: false, message: `Must be at least ${minLength} characters` }
-    }
-
-    if (length > maxLength) {
-        return { isValid: false, message: `Must be no more than ${maxLength} characters` }
-    }
-
-    return { isValid: true, message: '' }
-}
-
-// Required field validation
-export const validateRequired = (value, fieldName = 'This field') => {
-    if (value === null || value === undefined || String(value).trim() === '') {
-        return { isValid: false, message: `${fieldName} is required` }
-    }
-    return { isValid: true, message: '' }
-}
-
-// Multiple validation runner
-export const runValidations = (value, validations = []) => {
-    for (const validation of validations) {
-        const result = validation(value)
-        if (!result.isValid) {
-            return result
-        }
-    }
-    return { isValid: true, message: '' }
-}
-
-// Form validation helper
-export const validateForm = (formData, validationRules) => {
-    const errors = {}
-
-    for (const [field, rules] of Object.entries(validationRules)) {
-        const value = formData[field]
-        const result = runValidations(value, rules)
-
-        if (!result.isValid) {
-            errors[field] = result.message
-        }
-    }
-
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors
-    }
-}
-
-// Async validation helper
-export const validateAsync = async (value, asyncValidator) => {
-    try {
-        const result = await asyncValidator(value)
-        return { isValid: true, message: '', data: result }
-    } catch (error) {
-        return { isValid: false, message: error.message || 'Validation failed' }
+        totalErrors,
+        warnings: warnings.length,
+        completedSections,
+        incompleteSections,
+        isComplete: totalErrors === 0,
+        completionPercentage: Math.round((completedSections.length / (completedSections.length + incompleteSections.length)) * 100)
     }
 }
 
 export default {
     validateEmail,
     validatePhone,
+    formatPhoneNumber,
     validateZipCode,
-    validateSSN,
-    validatePasswordStrength,
-    validateUrl,
-    validateDate,
-    validateFutureDate,
-    validatePastDate,
-    validateNumber,
-    validatePositiveNumber,
-    validateInteger,
-    validateFile,
-    validateLicenseNumber,
-    validatePermitNumber,
-    validateAddress,
-    validateTextLength,
     validateRequired,
-    runValidations,
-    validateForm,
-    validateAsync,
+    validateMinLength,
+    validateMaxLength,
+    validateNumeric,
+    validateCurrency,
+    validateDate,
+    validateParcelId,
+    validateLicenseNumber,
+    validateBTU,
+    validatePasswordStrength,
+    validateContractorLicense,
+    validateBuildingPermit,
+    validateGasPermit,
+    validatePermitForm,
+    validateBusinessRules,
+    validateFile,
+    isFormComplete,
+    getValidationSummary
 }

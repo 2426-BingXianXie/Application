@@ -1,156 +1,110 @@
-import { api } from './api'
+import api from './api'
 
-/**
- * Generic permit service for common operations
- * Works with both building and gas permits through polymorphism
- */
-export const permitService = {
-    // Get all permits with pagination
-    getAll: async (permitType = '', params = {}) => {
-        const endpoint = permitType ? `/${permitType}-permits` : '/permits'
-        const response = await api.get(endpoint, { params })
+const permitService = {
+    // Generic CRUD operations
+    getAll: async (params = {}) => {
+        const response = await api.get('/permits', { params })
         return response.data
     },
 
-    // Get permit by ID
-    getById: async (id, permitType = '') => {
-        const endpoint = permitType ? `/${permitType}-permits/${id}` : `/permits/${id}`
-        const response = await api.get(endpoint)
+    getById: async (id) => {
+        const response = await api.get(`/permits/${id}`)
         return response.data
     },
 
-    // Get permit by permit number
-    getByNumber: async (permitNumber, permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/number/${permitNumber}`
-                         : `/permits/number/${permitNumber}`
-        const response = await api.get(endpoint)
+    getByPermitNumber: async (permitNumber) => {
+        const response = await api.get(`/permits/number/${permitNumber}`)
         return response.data
     },
 
-    // Create new permit
-    create: async (permitData, permitType = '') => {
-        const endpoint = permitType ? `/${permitType}-permits` : '/permits'
-        const response = await api.post(endpoint, permitData)
+    create: async (permitData) => {
+        const response = await api.post('/permits', permitData)
         return response.data
     },
 
-    // Update existing permit
-    update: async (id, permitData, permitType = '') => {
-        const endpoint = permitType ? `/${permitType}-permits/${id}` : `/permits/${id}`
-        const response = await api.put(endpoint, permitData)
+    update: async (id, permitData) => {
+        const response = await api.put(`/permits/${id}`, permitData)
         return response.data
     },
 
-    // Delete permit
-    delete: async (id, permitType = '') => {
-        const endpoint = permitType ? `/${permitType}-permits/${id}` : `/permits/${id}`
-        await api.delete(endpoint)
-        return true
-    },
-
-    // Submit permit for review
-    submit: async (id, permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/${id}/submit`
-                         : `/permits/${id}/submit`
-        const response = await api.post(endpoint)
+    delete: async (id) => {
+        const response = await api.delete(`/permits/${id}`)
         return response.data
     },
 
-    // Approve permit
-    approve: async (id, notes = '', permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/${id}/approve`
-                         : `/permits/${id}/approve`
-        const response = await api.post(endpoint, { notes })
+    // Workflow operations
+    submit: async (id) => {
+        const response = await api.post(`/permits/${id}/submit`)
         return response.data
     },
 
-    // Reject permit
-    reject: async (id, reason, permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/${id}/reject`
-                         : `/permits/${id}/reject`
-        const response = await api.post(endpoint, { reason })
+    approve: async (id, notes = '') => {
+        const response = await api.post(`/permits/${id}/approve`, { notes })
+        return response.data
+    },
+
+    reject: async (id, reason) => {
+        const response = await api.post(`/permits/${id}/reject`, { reason })
+        return response.data
+    },
+
+    withdraw: async (id, reason) => {
+        const response = await api.post(`/permits/${id}/withdraw`, { reason })
+        return response.data
+    },
+
+    // Search and filtering
+    search: async (query, params = {}) => {
+        const response = await api.get('/permits/search', {
+            params: { q: query, ...params }
+        })
         return response.data
     },
 
     // Get permits by status
-    getByStatus: async (status, permitType = '', params = {}) => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/status/${status}`
-                         : `/permits/status/${status}`
-        const response = await api.get(endpoint, { params })
+    getByStatus: async (status, params = {}) => {
+        const response = await api.get(`/permits/status/${status}`, { params })
         return response.data
     },
 
-    // Get permits by applicant type
-    getByApplicantType: async (applicantType, permitType = '', params = {}) => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/applicant-type/${applicantType}`
-                         : `/permits/applicant-type/${applicantType}`
-        const response = await api.get(endpoint, { params })
+    // Get permits by user
+    getByUser: async (userId, params = {}) => {
+        const response = await api.get(`/permits/user/${userId}`, { params })
         return response.data
     },
 
-    // Get permits by email
-    getByEmail: async (email, permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/email/${email}`
-                         : `/permits/email/${email}`
-        const response = await api.get(endpoint)
+    // Statistics
+    getStatistics: async (params = {}) => {
+        const response = await api.get('/permits/statistics', { params })
         return response.data
     },
 
-    // Search permits
-    search: async (searchTerm, permitType = '', params = {}) => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/search`
-                         : '/permits/search'
-        const response = await api.get(endpoint, {
-            params: { searchTerm, ...params }
-        })
+    // Get permit history
+    getPermitHistory: async (id) => {
+        const response = await api.get(`/permits/${id}/history`)
         return response.data
     },
 
-    // Get permit statistics
-    getStatistics: async (permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/statistics`
-                         : '/permits/statistics'
-        const response = await api.get(endpoint)
+    // Add comment to permit
+    addComment: async (id, comment) => {
+        const response = await api.post(`/permits/${id}/comments`, { comment })
         return response.data
     },
 
-    // Get expiring permits
-    getExpiring: async (days = 30, permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/expiring`
-                         : '/permits/expiring'
-        const response = await api.get(endpoint, { params: { days } })
-        return response.data
-    },
-
-    // Get permits by date range
-    getByDateRange: async (startDate, endDate, permitType = '', params = {}) => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/date-range`
-                         : '/permits/date-range'
-        const response = await api.get(endpoint, {
-            params: { startDate, endDate, ...params }
-        })
+    // Get permit comments
+    getComments: async (id) => {
+        const response = await api.get(`/permits/${id}/comments`)
         return response.data
     },
 
     // Validate permit data
-    validate: async (permitData, permitType = '') => {
-        const endpoint = permitType
-                         ? `/${permitType}-permits/validate`
-                         : '/permits/validate'
-        const response = await api.post(endpoint, permitData)
+    validatePermit: async (permitData, permitType) => {
+        const response = await api.post('/permits/validate', {
+            permitData,
+            permitType
+        })
         return response.data
-    },
+    }
 }
 
 export default permitService

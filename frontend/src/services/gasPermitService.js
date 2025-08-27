@@ -1,114 +1,91 @@
-import { api } from './api'
-import permitService from './permitService'
+import api from './api'
 
-/**
- * Gas permit specific service
- * Extends generic permit service with gas-specific operations
- */
-export const gasPermitService = {
-    // Inherit all generic operations
-    ...Object.fromEntries(
-        Object.entries(permitService).map(([key, fn]) => [
-            key,
-            (...args) => fn(...args, 'gas')
-        ])
-    ),
+const gasPermitService = {
+    // Inherit all generic permit operations by copying them
+    // Generic CRUD operations
+    getAll: async (params = {}) => {
+        const response = await api.get('/gas-permits', { params })
+        return response.data
+    },
+
+    getById: async (id) => {
+        const response = await api.get(`/gas-permits/${id}`)
+        return response.data
+    },
+
+    getByPermitNumber: async (permitNumber) => {
+        const response = await api.get(`/gas-permits/number/${permitNumber}`)
+        return response.data
+    },
+
+    create: async (permitData) => {
+        const response = await api.post('/gas-permits', permitData)
+        return response.data
+    },
+
+    update: async (id, permitData) => {
+        const response = await api.put(`/gas-permits/${id}`, permitData)
+        return response.data
+    },
+
+    delete: async (id) => {
+        const response = await api.delete(`/gas-permits/${id}`)
+        return response.data
+    },
+
+    // Workflow operations
+    submit: async (id) => {
+        const response = await api.post(`/gas-permits/${id}/submit`)
+        return response.data
+    },
+
+    approve: async (id, notes = '') => {
+        const response = await api.post(`/gas-permits/${id}/approve`, { notes })
+        return response.data
+    },
+
+    reject: async (id, reason) => {
+        const response = await api.post(`/gas-permits/${id}/reject`, { reason })
+        return response.data
+    },
+
+    // Search and filtering
+    search: async (query, params = {}) => {
+        const response = await api.get('/gas-permits/search', {
+            params: { q: query, ...params }
+        })
+        return response.data
+    },
+
+    getStatistics: async (params = {}) => {
+        const response = await api.get('/gas-permits/statistics', { params })
+        return response.data
+    },
 
     // Gas-specific operations
-
-    // Get permits by gas work type
     getByWorkType: async (workType, params = {}) => {
         const response = await api.get(`/gas-permits/work-type/${workType}`, { params })
         return response.data
     },
 
-    // Get permits by installation type
     getByInstallationType: async (installationType, params = {}) => {
         const response = await api.get(`/gas-permits/installation-type/${installationType}`, { params })
         return response.data
     },
 
-    // Get high-pressure permits (over 400,000 BTU)
-    getHighPressure: async (params = {}) => {
-        const response = await api.get('/gas-permits/high-pressure', { params })
-        return response.data
-    },
-
-    // Get permits requiring utility coordination
-    getRequiringUtilityCoordination: async (params = {}) => {
-        const response = await api.get('/gas-permits/utility-coordination', { params })
-        return response.data
-    },
-
-    // Get commercial gas permits
-    getCommercial: async (params = {}) => {
-        const response = await api.get('/gas-permits/commercial', { params })
-        return response.data
-    },
-
-    // Get permits by BTU range
-    getByBtuRange: async (minBtu, maxBtu, params = {}) => {
-        const response = await api.get('/gas-permits/btu-range', {
-            params: { minBtu, maxBtu, ...params }
+    getHighPressure: async (minBtu = 100000, params = {}) => {
+        const response = await api.get('/gas-permits/high-pressure', {
+            params: { minBtu, ...params }
         })
         return response.data
     },
 
-    // Get permits by gas type
-    getByGasType: async (gasType, params = {}) => {
-        const response = await api.get(`/gas-permits/gas-type/${gasType}`, { params })
+    getRequiringUtilityCoordination: async (params = {}) => {
+        const response = await api.get('/gas-permits/requiring-utility', { params })
         return response.data
     },
 
-    // Get permits requiring pressure test
-    getRequiringPressureTest: async (params = {}) => {
-        const response = await api.get('/gas-permits/pressure-test-required', { params })
-        return response.data
-    },
-
-    // Get permits requiring emergency shutoff
-    getRequiringEmergencyShutoff: async (params = {}) => {
-        const response = await api.get('/gas-permits/emergency-shutoff-required', { params })
-        return response.data
-    },
-
-    // Get permits by gas contractor license
-    getByGasContractorLicense: async (licenseNumber, params = {}) => {
-        const response = await api.get(`/gas-permits/gas-contractor/${licenseNumber}`, { params })
-        return response.data
-    },
-
-    // Get new service line permits
-    getNewServiceLines: async (params = {}) => {
-        const response = await api.get('/gas-permits/new-service-lines', { params })
-        return response.data
-    },
-
-    // Get appliance installation permits
-    getApplianceInstallations: async (params = {}) => {
-        const response = await api.get('/gas-permits/appliance-installations', { params })
-        return response.data
-    },
-
-    // Gas permit validation with specific rules
-    validateGas: async (permitData) => {
-        const response = await api.post('/gas-permits/validate', permitData)
-        return response.data
-    },
-
-    // Get gas safety statistics
-    getGasSafetyStatistics: async () => {
-        const response = await api.get('/gas-permits/safety-statistics')
-        return response.data
-    },
-
-    // Validate gas contractor license
-    validateGasContractorLicense: async (licenseNumber) => {
-        const response = await api.get(`/gas-permits/validate-gas-contractor/${licenseNumber}`)
-        return response.data
-    },
-
-    // Calculate gas line sizing requirements
+    // Gas calculations and safety
     calculateGasLineSizing: async (btuLoad, distance, gasType) => {
         const response = await api.post('/gas-permits/calculate-line-sizing', {
             btuLoad,
@@ -118,13 +95,17 @@ export const gasPermitService = {
         return response.data
     },
 
-    // Check utility company requirements
     checkUtilityRequirements: async (permitData) => {
         const response = await api.post('/gas-permits/check-utility-requirements', permitData)
         return response.data
     },
 
-    // Schedule gas inspections
+    validateGasSafety: async (permitData) => {
+        const response = await api.post('/gas-permits/validate-safety', permitData)
+        return response.data
+    },
+
+    // Gas inspections
     scheduleGasInspections: async (permitId, inspectionTypes) => {
         const response = await api.post(`/gas-permits/${permitId}/schedule-inspections`, {
             inspectionTypes
@@ -132,13 +113,24 @@ export const gasPermitService = {
         return response.data
     },
 
-    // Get required gas inspections
     getRequiredGasInspections: async (permitId) => {
         const response = await api.get(`/gas-permits/${permitId}/required-inspections`)
         return response.data
     },
 
-    // Submit gas appliance specifications
+    // Gas contractor validation
+    validateGasContractorLicense: async (licenseNumber) => {
+        const response = await api.get(`/gas-permits/validate-gas-contractor/${licenseNumber}`)
+        return response.data
+    },
+
+    // Gas safety statistics
+    getGasSafetyStatistics: async () => {
+        const response = await api.get('/gas-permits/safety-statistics')
+        return response.data
+    },
+
+    // Upload gas appliance specifications
     uploadApplianceSpecs: async (permitId, files, onProgress) => {
         const formData = new FormData()
         files.forEach((file, index) => {
@@ -153,46 +145,13 @@ export const gasPermitService = {
         return response.data
     },
 
-    // Generate gas load calculation report
-    generateLoadCalculation: async (permitId) => {
-        const response = await api.get(`/gas-permits/${permitId}/load-calculation`)
-        return response.data
-    },
-
-    // Notify utility company
-    notifyUtilityCompany: async (permitId, utilityInfo) => {
-        const response = await api.post(`/gas-permits/${permitId}/notify-utility`, utilityInfo)
-        return response.data
-    },
-
-    // Get BTU capacity recommendations
-    getBtuRecommendations: async (applianceTypes, installationType) => {
-        const response = await api.post('/gas-permits/btu-recommendations', {
-            applianceTypes,
-            installationType
-        })
-        return response.data
-    },
-
-    // Check gas code compliance
-    checkGasCodeCompliance: async (permitData) => {
-        const response = await api.post('/gas-permits/check-compliance', permitData)
-        return response.data
-    },
-
     // Download gas permit certificate
-    downloadGasCertificate: async (permitId) => {
+    downloadCertificate: async (permitId) => {
         return api.download(
             `/gas-permits/${permitId}/certificate`,
             `gas-permit-${permitId}.pdf`
         )
-    },
-
-    // Get major gas installations (over 1M BTU)
-    getMajorInstallations: async (params = {}) => {
-        const response = await api.get('/gas-permits/major-installations', { params })
-        return response.data
-    },
+    }
 }
 
 export default gasPermitService

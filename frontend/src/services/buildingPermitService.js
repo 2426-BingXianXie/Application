@@ -1,18 +1,69 @@
-import { api } from './api'
-import permitService from './permitService'
+import api from './api'
 
 /**
  * Building permit specific service
- * Extends generic permit service with building-specific operations
+ * Contains building-specific operations and inherits common permit functionality
  */
-export const buildingPermitService = {
-    // Inherit all generic operations
-    ...Object.fromEntries(
-        Object.entries(permitService).map(([key, fn]) => [
-            key,
-            (...args) => fn(...args, 'building')
-        ])
-    ),
+const buildingPermitService = {
+    // Generic CRUD operations for building permits
+    getAll: async (params = {}) => {
+        const response = await api.get('/building-permits', { params })
+        return response.data
+    },
+
+    getById: async (id) => {
+        const response = await api.get(`/building-permits/${id}`)
+        return response.data
+    },
+
+    getByPermitNumber: async (permitNumber) => {
+        const response = await api.get(`/building-permits/number/${permitNumber}`)
+        return response.data
+    },
+
+    create: async (permitData) => {
+        const response = await api.post('/building-permits', permitData)
+        return response.data
+    },
+
+    update: async (id, permitData) => {
+        const response = await api.put(`/building-permits/${id}`, permitData)
+        return response.data
+    },
+
+    delete: async (id) => {
+        const response = await api.delete(`/building-permits/${id}`)
+        return response.data
+    },
+
+    // Workflow operations
+    submit: async (id) => {
+        const response = await api.post(`/building-permits/${id}/submit`)
+        return response.data
+    },
+
+    approve: async (id, notes = '') => {
+        const response = await api.post(`/building-permits/${id}/approve`, { notes })
+        return response.data
+    },
+
+    reject: async (id, reason) => {
+        const response = await api.post(`/building-permits/${id}/reject`, { reason })
+        return response.data
+    },
+
+    // Search and filtering
+    search: async (query, params = {}) => {
+        const response = await api.get('/building-permits/search', {
+            params: { q: query, ...params }
+        })
+        return response.data
+    },
+
+    getStatistics: async (params = {}) => {
+        const response = await api.get('/building-permits/statistics', { params })
+        return response.data
+    },
 
     // Building-specific operations
 
@@ -156,6 +207,14 @@ export const buildingPermitService = {
             `building-permit-${permitId}.pdf`
         )
     },
+
+    // Get permits by date range
+    getByDateRange: async (startDate, endDate, params = {}) => {
+        const response = await api.get('/building-permits/date-range', {
+            params: { startDate, endDate, ...params }
+        })
+        return response.data
+    }
 }
 
 export default buildingPermitService

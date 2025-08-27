@@ -1,216 +1,134 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
-import toast from 'react-hot-toast'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import authService from '../services/authService'
+import { useToast } from '../components/ui/Toast'
 
-// Auth Context
 const AuthContext = createContext()
 
-// Auth actions
-const AUTH_ACTIONS = {
-    LOGIN_START: 'LOGIN_START',
-    LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-    LOGIN_FAILURE: 'LOGIN_FAILURE',
-    LOGOUT: 'LOGOUT',
-    SET_USER: 'SET_USER',
-    CLEAR_ERROR: 'CLEAR_ERROR',
-}
-
-// Initial state
-const initialState = {
-    user: null,
-    token: localStorage.getItem('auth_token'),
-    isAuthenticated: !!localStorage.getItem('auth_token'),
-    isLoading: false,
-    error: null,
-}
-
-// Auth reducer
-const authReducer = (state, action) => {
-    switch (action.type) {
-        case AUTH_ACTIONS.LOGIN_START:
-            return {
-                ...state,
-                isLoading: true,
-                error: null,
-            }
-
-        case AUTH_ACTIONS.LOGIN_SUCCESS:
-            return {
-                ...state,
-                user: action.payload.user,
-                token: action.payload.token,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-            }
-
-        case AUTH_ACTIONS.LOGIN_FAILURE:
-            return {
-                ...state,
-                user: null,
-                token: null,
-                isAuthenticated: false,
-                isLoading: false,
-                error: action.payload.error,
-            }
-
-        case AUTH_ACTIONS.LOGOUT:
-            return {
-                ...state,
-                user: null,
-                token: null,
-                isAuthenticated: false,
-                isLoading: false,
-                error: null,
-            }
-
-        case AUTH_ACTIONS.SET_USER:
-            return {
-                ...state,
-                user: action.payload.user,
-            }
-
-        case AUTH_ACTIONS.CLEAR_ERROR:
-            return {
-                ...state,
-                error: null,
-            }
-
-        default:
-            return state
+export const useAuth = () => {
+    const context = useContext(AuthContext)
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider')
     }
+    return context
 }
 
-// Auth Provider Component
 export const AuthProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(authReducer, initialState)
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const { success, error } = useToast()
 
-    // Check if user is logged in on app start
+    // Check for existing auth on mount
     useEffect(() => {
-        const token = localStorage.getItem('auth_token')
-        const userData = localStorage.getItem('user_data')
-
-        if (token && userData) {
-            try {
-                const user = JSON.parse(userData)
-                dispatch({
-                             type: AUTH_ACTIONS.SET_USER,
-                             payload: { user }
-                         })
-            } catch (error) {
-                console.error('Error parsing user data:', error)
-                logout()
-            }
-        }
+        checkAuth()
     }, [])
 
-    // Login function
-    const login = async (credentials) => {
-        dispatch({ type: AUTH_ACTIONS.LOGIN_START })
-
+    const checkAuth = async () => {
         try {
-            // For now, simulate API call
-            // In real app, this would be an API call to your backend
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            // Mock user data - replace with actual API response
-            const mockUser = {
-                id: 1,
-                name: 'John Smith',
-                email: credentials.email,
-                role: 'applicant',
-                permissions: ['read', 'create', 'update']
+            const token = localStorage.getItem('auth_token')
+            if (!token) {
+                setLoading(false)
+                return
             }
 
-            const mockToken = 'mock_jwt_token_' + Date.now()
-
-            // Store in localStorage
-            localStorage.setItem('auth_token', mockToken)
-            localStorage.setItem('user_data', JSON.stringify(mockUser))
-
-            dispatch({
-                         type: AUTH_ACTIONS.LOGIN_SUCCESS,
-                         payload: {
-                             user: mockUser,
-                             token: mockToken
-                         }
-                     })
-
-            toast.success('Login successful!')
-            return { success: true, user: mockUser }
-
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Login failed'
-
-            dispatch({
-                         type: AUTH_ACTIONS.LOGIN_FAILURE,
-                         payload: { error: errorMessage }
-                     })
-
-            toast.error(errorMessage)
-            return { success: false, error: errorMessage }
+            const userData = await authService.getCurrentUser()
+            setUser(userData)
+            setIsAuthenticated(true)
+        } catch (err) {
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('user_data')
+        } finally {
+            setLoading(false)
         }
     }
 
-    // Logout function
-    const logout = () => {
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('user_data')
-
-        dispatch({ type: AUTH_ACTIONS.LOGOUT })
-        toast.success('Logged out successfully')
-    }
-
-    // Update user profile
-    const updateUser = async (userData) => {
+    const login = async (email, password, rememberMe = false) => {
         try {
-            // In real app, this would be an API call
-            const updatedUser = { ...state.user, ...userData }
+            const response = await authService.login(email, password)
+            const { token, user: userData } = response
 
-            localStorage.setItem('user_data', JSON.stringify(updatedUser))
-            dispatch({
-                         type: AUTH_ACTIONS.SET_USER,
-                         payload: { user: updatedUser }
-                     })
+            // Store auth data
+            localStorage.setItem('auth_token', token)
+            localStorage.setItem('user_data', JSON.stringify(userData))
 
-            toast.success('Profile updated successfully')
-            return { success: true, user: updatedUser }
+            setUser(userData)
+            setIsAuthenticated(true)
 
-        } catch (error) {
-            toast.error('Failed to update profile')
-            return { success: false, error: error.message }
+            return userData
+        } catch (err) {
+            throw new Error(err.message || 'Login failed')
         }
     }
 
-    // Clear error
-    const clearError = () => {
-        dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR })
+    const register = async (userData) => {
+        try {
+            const response = await authService.register(userData)
+            return response
+        } catch (err) {
+            throw new Error(err.message || 'Registration failed')
+        }
     }
 
-    // Check if user has permission
+    const logout = async () => {
+        try {
+            await authService.logout()
+        } catch (err) {
+            console.error('Logout error:', err)
+        } finally {
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('user_data')
+            setUser(null)
+            setIsAuthenticated(false)
+            success('Logged out successfully')
+        }
+    }
+
+    const updateProfile = async (profileData) => {
+        try {
+            const updatedUser = await authService.updateProfile(profileData)
+            setUser(updatedUser)
+            localStorage.setItem('user_data', JSON.stringify(updatedUser))
+            return updatedUser
+        } catch (err) {
+            throw new Error(err.message || 'Profile update failed')
+        }
+    }
+
+    const changePassword = async (currentPassword, newPassword) => {
+        try {
+            await authService.changePassword(currentPassword, newPassword)
+            success('Password changed successfully')
+        } catch (err) {
+            throw new Error(err.message || 'Password change failed')
+        }
+    }
+
     const hasPermission = (permission) => {
-        return state.user?.permissions?.includes(permission) || false
-    }
+        if (!user?.roles) return false
 
-    // Check if user has role
-    const hasRole = (role) => {
-        return state.user?.role === role
+        const rolePermissions = {
+            USER: ['read', 'create', 'update_own'],
+            CONTRACTOR: ['read', 'create', 'update_own', 'submit'],
+            REVIEWER: ['read', 'create', 'update_own', 'submit', 'review', 'approve', 'reject'],
+            ADMIN: ['read', 'create', 'update', 'delete', 'submit', 'review', 'approve', 'reject', 'admin']
+        }
+
+        return user.roles.some(role =>
+                                   rolePermissions[role]?.includes(permission)
+        )
     }
 
     const value = {
-        // State
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-        isLoading: state.isLoading,
-        error: state.error,
-
-        // Actions
+        user,
+        loading,
+        isAuthenticated,
         login,
+        register,
         logout,
-        updateUser,
-        clearError,
+        updateProfile,
+        changePassword,
         hasPermission,
-        hasRole,
+        checkAuth
     }
 
     return (
@@ -218,13 +136,4 @@ export const AuthProvider = ({ children }) => {
             {children}
         </AuthContext.Provider>
     )
-}
-
-// Hook to use auth context
-export const useAuth = () => {
-    const context = useContext(AuthContext)
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider')
-    }
-    return context
 }

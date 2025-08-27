@@ -1,4 +1,12 @@
-// This hook is already implemented in the NotificationContext
-// We're just re-exporting it for convenience
+import { useContext } from 'react'
+import { NotificationContext } from '../context/NotificationContext'
 
-export { useNotifications } from '../context/NotificationContext'
+export const useNotifications = () => {
+    const context = useContext(NotificationContext)
+
+    if (!context) {
+        throw new Error('useNotifications must be used within a NotificationProvider')
+    }
+
+    return context
+}
