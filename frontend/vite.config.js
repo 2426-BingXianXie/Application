@@ -115,12 +115,6 @@ export default defineConfig({
                                 css: {
                                     modules: {
                                         localsConvention: 'camelCase'
-                                    },
-                                    postcss: {
-                                        plugins: [
-                                            require('tailwindcss'),
-                                            require('autoprefixer')
-                                        ]
                                     }
                                 },
 

@@ -1,240 +1,213 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { Trash2, AlertTriangle, Truck } from 'lucide-react'
+import Input, { Textarea } from '../ui/Input'
+import Select from '../ui/Select'
+import { DISPOSAL_METHOD_LABELS, DEBRIS_TYPE_LABELS } from '../../utils/constants'
 
-const DebrisDisposalForm = ({ data = {}, onChange, readOnly = false, errors = {} }) => {
-    const [formData, setFormData] = useState({
-                                                 dumpsterLocation: '',
-                                                 companyName: '',
-                                                 companyLicenseNumber: '',
-                                                 companyPhone: '',
-                                                 companyEmail: '',
-                                                 disposalMethod: 'DUMPSTER',
-                                                 estimatedVolumeCubicYards: '',
-                                                 debrisType: 'CONSTRUCTION',
-                                                 specialRequirements: '',
-                                                 isHazardousMaterial: false,
-                                                 ...data
-                                             })
+const DebrisDisposalForm = ({
+                                formData,
+                                errors,
+                                updateField,
+                                getFieldValue
+                            }) => {
 
-    const updateFormData = (field, value) => {
-        const newData = { ...formData, [field]: value }
-        setFormData(newData)
-        onChange && onChange(newData)
-    }
+    const disposalMethodOptions = [
+        { value: '', label: 'Select disposal method' },
+        ...Object.entries(DISPOSAL_METHOD_LABELS).map(([value, label]) => ({
+            value,
+            label
+        }))
+    ]
+
+    const debrisTypeOptions = [
+        { value: '', label: 'Select debris type' },
+        ...Object.entries(DEBRIS_TYPE_LABELS).map(([value, label]) => ({
+            value,
+            label
+        }))
+    ]
 
     return (
         <div className="space-y-6">
-            <div>
+            {/* Header */}
+            <div className="text-center">
+                <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mb-4">
+                    <Trash2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     Debris Disposal
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
                     Provide debris disposal location in accordance with MGL 40 Section 54.
                 </p>
             </div>
 
-            <div className="space-y-4">
-                {/* Dumpster Location */}
-                <div>
-                    <label className="form-label">
-                        Location of Dumpster Facility (Address) *
-                    </label>
-                    <input
-                        type="text"
-                        value={formData.dumpsterLocation}
-                        onChange={(e) => updateFormData('dumpsterLocation', e.target.value)}
-                        className={`form-input ${errors.dumpsterLocation ? 'border-red-500' : ''}`}
-                        placeholder="Complete address of disposal facility"
-                        readOnly={readOnly}
-                    />
-                    {errors.dumpsterLocation && <p className="form-error">{errors.dumpsterLocation}</p>}
+            {/* Form Fields */}
+            <div className="max-w-2xl mx-auto space-y-6">
+                {/* Legal Requirement Notice */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
+                        Massachusetts General Law Requirement
+                    </h4>
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                        Per MGL Chapter 40, Section 54, all construction and demolition debris must be disposed
+                        of at licensed facilities. Proper disposal documentation is required for permit approval.
+                    </p>
                 </div>
 
-                {/* Company Name */}
-                <div>
-                    <label className="form-label">
-                        Disposal Company Name *
-                    </label>
-                    <input
-                        type="text"
-                        value={formData.companyName}
-                        onChange={(e) => updateFormData('companyName', e.target.value)}
-                        className={`form-input ${errors.companyName ? 'border-red-500' : ''}`}
-                        placeholder="Name of disposal company"
-                        readOnly={readOnly}
+                {/* Disposal Location */}
+                <div className="space-y-4">
+                    <div className="flex items-center mb-4">
+                        <Truck className="h-5 w-5 text-gray-400 mr-2" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                            Disposal Information
+                        </h3>
+                    </div>
+
+                    <Input
+                        label="Location of Dumpster/Disposal Facility (Address)"
+                        required
+                        value={getFieldValue('debrisDisposal.dumpsterLocation')}
+                        onChange={(e) => updateField('debrisDisposal.dumpsterLocation', e.target.value)}
+                        error={errors['debrisDisposal.dumpsterLocation']}
+                        placeholder="123 Disposal Facility Road, City, State 12345"
+                        helperText="Complete address of disposal facility or dumpster location"
                     />
-                    {errors.companyName && <p className="form-error">{errors.companyName}</p>}
+
+                    <Input
+                        label="Disposal Company Name"
+                        required
+                        value={getFieldValue('debrisDisposal.companyName')}
+                        onChange={(e) => updateField('debrisDisposal.companyName', e.target.value)}
+                        error={errors['debrisDisposal.companyName']}
+                        placeholder="ABC Waste Management"
+                        helperText="Name of licensed disposal company"
+                    />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Company Phone */}
-                    <div>
-                        <label className="form-label">
-                            Company Phone
-                        </label>
-                        <input
-                            type="tel"
-                            value={formData.companyPhone}
-                            onChange={(e) => updateFormData('companyPhone', e.target.value)}
-                            className="form-input"
-                            placeholder="(555) 123-4567"
-                            readOnly={readOnly}
+                {/* Disposal Method and Type */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        Disposal Details
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Select
+                            label="Disposal Method"
+                            value={getFieldValue('debrisDisposal.disposalMethod')}
+                            onChange={(value) => updateField('debrisDisposal.disposalMethod', value)}
+                            options={disposalMethodOptions}
+                            error={errors['debrisDisposal.disposalMethod']}
+                            helperText="How debris will be disposed"
+                        />
+
+                        <Select
+                            label="Debris Type"
+                            value={getFieldValue('debrisDisposal.debrisType')}
+                            onChange={(value) => updateField('debrisDisposal.debrisType', value)}
+                            options={debrisTypeOptions}
+                            error={errors['debrisDisposal.debrisType']}
+                            helperText="Type of construction debris"
                         />
                     </div>
 
-                    {/* Company Email */}
-                    <div>
-                        <label className="form-label">
-                            Company Email
-                        </label>
-                        <input
-                            type="email"
-                            value={formData.companyEmail}
-                            onChange={(e) => updateFormData('companyEmail', e.target.value)}
-                            className="form-input"
-                            placeholder="company@email.com"
-                            readOnly={readOnly}
-                        />
-                    </div>
+                    <Input
+                        label="Estimated Volume (Cubic Yards)"
+                        type="number"
+                        value={getFieldValue('debrisDisposal.estimatedVolumeCubicYards')}
+                        onChange={(e) => updateField('debrisDisposal.estimatedVolumeCubicYards', e.target.value)}
+                        error={errors['debrisDisposal.estimatedVolumeCubicYards']}
+                        placeholder="0"
+                        helperText="Estimated volume of debris in cubic yards"
+                    />
+                </div>
 
-                    {/* Disposal Method */}
-                    <div>
-                        <label className="form-label">
-                            Disposal Method
-                        </label>
-                        <select
-                            value={formData.disposalMethod}
-                            onChange={(e) => updateFormData('disposalMethod', e.target.value)}
-                            className="form-select"
-                            disabled={readOnly}
-                        >
-                            <option value="DUMPSTER">Dumpster Rental</option>
-                            <option value="HAULING_SERVICE">Hauling Service</option>
-                            <option value="SELF_HAUL">Self Haul</option>
-                            <option value="RECYCLING_CENTER">Recycling Center</option>
-                        </select>
-                    </div>
+                {/* Hazardous Materials */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        Hazardous Materials
+                    </h3>
 
-                    {/* Debris Type */}
                     <div>
-                        <label className="form-label">
-                            Debris Type
-                        </label>
-                        <select
-                            value={formData.debrisType}
-                            onChange={(e) => updateFormData('debrisType', e.target.value)}
-                            className="form-select"
-                            disabled={readOnly}
-                        >
-                            <option value="CONSTRUCTION">Construction Debris</option>
-                            <option value="DEMOLITION">Demolition Debris</option>
-                            <option value="RENOVATION">Renovation Debris</option>
-                            <option value="LANDSCAPING">Landscaping Debris</option>
-                            <option value="MIXED">Mixed Debris</option>
-                        </select>
-                    </div>
-
-                    {/* Estimated Volume */}
-                    <div>
-                        <label className="form-label">
-                            Estimated Volume
-                        </label>
-                        <div className="relative">
+                        <label className="flex items-center space-x-3">
                             <input
-                                type="number"
-                                value={formData.estimatedVolumeCubicYards}
-                                onChange={(e) => updateFormData('estimatedVolumeCubicYards', e.target.value)}
-                                className="form-input"
-                                placeholder="10"
-                                min="0"
-                                step="0.1"
-                                readOnly={readOnly}
+                                type="checkbox"
+                                checked={getFieldValue('debrisDisposal.isHazardousMaterial')}
+                                onChange={(e) => updateField('debrisDisposal.isHazardousMaterial', e.target.checked)}
+                                className="form-checkbox h-4 w-4 text-red-600 transition duration-150 ease-in-out"
                             />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                cubic yards
+                            <span className="text-sm text-gray-900 dark:text-white">
+                Does the project involve hazardous materials?
               </span>
-                        </div>
-                    </div>
-
-                    {/* Company License */}
-                    <div>
-                        <label className="form-label">
-                            Company License Number
                         </label>
-                        <input
-                            type="text"
-                            value={formData.companyLicenseNumber}
-                            onChange={(e) => updateFormData('companyLicenseNumber', e.target.value)}
-                            className="form-input"
-                            placeholder="Disposal company license"
-                            readOnly={readOnly}
-                        />
+                        <p className="ml-7 text-xs text-gray-500 dark:text-gray-400">
+                            Includes asbestos, lead paint, chemicals, or other hazardous substances
+                        </p>
                     </div>
-                </div>
 
-                {/* Special Requirements */}
-                <div>
-                    <label className="form-label">
-                        Special Disposal Requirements
-                    </label>
-                    <textarea
-                        value={formData.specialRequirements}
-                        onChange={(e) => updateFormData('specialRequirements', e.target.value)}
-                        rows={3}
-                        className="form-textarea"
-                        placeholder="Any special handling or disposal requirements..."
-                        readOnly={readOnly}
-                    />
-                </div>
-
-                {/* Hazardous Material */}
-                <div className="flex items-center">
-                    <input
-                        type="checkbox"
-                        checked={formData.isHazardousMaterial}
-                        onChange={(e) => updateFormData('isHazardousMaterial', e.target.checked)}
-                        className="form-checkbox"
-                        id="hazardousMaterial"
-                        disabled={readOnly}
-                    />
-                    <label htmlFor="hazardousMaterial" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                        This project involves hazardous materials
-                    </label>
-                </div>
-
-                {/* Hazardous Material Warning */}
-                {formData.isHazardousMaterial && (
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                        <div className="flex items-start space-x-3">
-                            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
-                            <div>
-                                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                                    Hazardous Materials Notice
-                                </h3>
-                                <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                                    Special permits and disposal procedures are required for hazardous materials.
-                                    Additional documentation and certified disposal companies may be required.
-                                </p>
+                    {getFieldValue('debrisDisposal.isHazardousMaterial') && (
+                        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                            <div className="flex items-start space-x-3">
+                                <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                                <div>
+                                    <h4 className="text-sm font-medium text-red-900 dark:text-red-200">
+                                        Hazardous Materials Notice
+                                    </h4>
+                                    <p className="text-sm text-red-800 dark:text-red-300 mt-1">
+                                        Projects involving hazardous materials require additional permits and specialized
+                                        disposal procedures. Contact the Environmental Health Department for guidance.
+                                    </p>
+                                    <div className="mt-3">
+                                        <Textarea
+                                            label="Hazardous Materials Description"
+                                            value={getFieldValue('debrisDisposal.hazardousDescription')}
+                                            onChange={(e) => updateField('debrisDisposal.hazardousDescription', e.target.value)}
+                                            placeholder="Describe the type and estimated quantity of hazardous materials..."
+                                            rows={3}
+                                            className="bg-white dark:bg-gray-800"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
 
-                {/* Large Volume Warning */}
-                {formData.estimatedVolumeCubicYards && parseInt(formData.estimatedVolumeCubicYards) > 50 && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                        <div className="flex items-start space-x-3">
-                            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-                            <div>
-                                <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                                    Large Volume Disposal
-                                </h3>
-                                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                                    Large volume debris disposal may require additional permits and special handling procedures.
-                                </p>
-                            </div>
+                {/* Requirements Summary */}
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                        Disposal Requirements Checklist
+                    </h4>
+                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span>Disposal facility must be licensed and approved</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span>Recycling and material recovery when possible</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span>Disposal receipts must be maintained for inspection</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span>No disposal in waterways or unauthorized locations</span>
                         </div>
                     </div>
-                )}
+                </div>
+
+                {/* Contact Information */}
+                <div className="text-center border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Questions about debris disposal requirements? Contact the{' '}
+                        <a href="mailto:permits@municipality.gov" className="text-blue-600 hover:text-blue-500">
+                            Permits Department
+                        </a>{' '}
+                        at (555) 123-4567
+                    </p>
+                </div>
             </div>
         </div>
     )

@@ -1,6 +1,367 @@
-// constants.js - Enhanced application constants
+// Application name and version
+export const APP_INFO = {
+    name: 'Permit Management System',
+    version: '1.0.0',
+    description: 'Municipal permit management and tracking system'
+}
 
-// US States for dropdowns
+// API Configuration
+export const API_CONFIG = {
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
+    timeout: 10000
+}
+
+// Route constants
+export const ROUTES = {
+    HOME: '/',
+    DASHBOARD: '/dashboard',
+    APPLY: '/apply',
+    BUILDING_PERMITS: '/building-permits',
+    GAS_PERMITS: '/gas-permits',
+    PERMITS: '/permits',
+    PERMIT_DETAILS: '/permit/:id',
+    PROFILE: '/profile',
+    SETTINGS: '/settings',
+    REPORTS: '/reports',
+    LOGIN: '/login',
+    REGISTER: '/register',
+    HELP: '/help',
+    CONTACT: '/contact',
+    TERMS: '/terms',
+    PRIVACY: '/privacy'
+}
+
+// Permit statuses
+export const PERMIT_STATUS = {
+    DRAFT: 'DRAFT',
+    SUBMITTED: 'SUBMITTED',
+    UNDER_REVIEW: 'UNDER_REVIEW',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED',
+    EXPIRED: 'EXPIRED',
+    CANCELLED: 'CANCELLED'
+}
+
+// Permit status labels
+export const PERMIT_STATUS_LABELS = {
+    DRAFT: 'Draft',
+    SUBMITTED: 'Submitted',
+    UNDER_REVIEW: 'Under Review',
+    APPROVED: 'Approved',
+    REJECTED: 'Rejected',
+    EXPIRED: 'Expired',
+    CANCELLED: 'Cancelled'
+}
+
+// Applicant types
+export const APPLICANT_TYPE = {
+    OWNER: 'OWNER',
+    CONTRACTOR: 'CONTRACTOR',
+    ARCHITECT: 'ARCHITECT',
+    ENGINEER: 'ENGINEER',
+    OTHER: 'OTHER'
+}
+
+// Applicant type labels
+export const APPLICANT_TYPE_LABELS = {
+    OWNER: 'Property Owner',
+    CONTRACTOR: 'Contractor',
+    ARCHITECT: 'Architect',
+    ENGINEER: 'Engineer',
+    OTHER: 'Other'
+}
+
+// Building types
+export const BUILDING_TYPE = {
+    RESIDENTIAL: 'RESIDENTIAL',
+    COMMERCIAL: 'COMMERCIAL',
+    INDUSTRIAL: 'INDUSTRIAL',
+    MIXED_USE: 'MIXED_USE',
+    INSTITUTIONAL: 'INSTITUTIONAL'
+}
+
+// Building type labels
+export const BUILDING_TYPE_LABELS = {
+    RESIDENTIAL: 'Residential',
+    COMMERCIAL: 'Commercial',
+    INDUSTRIAL: 'Industrial',
+    MIXED_USE: 'Mixed Use',
+    INSTITUTIONAL: 'Institutional'
+}
+
+// Occupancy types
+export const OCCUPANCY_TYPE = {
+    SINGLE_FAMILY: 'SINGLE_FAMILY',
+    MULTI_FAMILY: 'MULTI_FAMILY',
+    OFFICE: 'OFFICE',
+    RETAIL: 'RETAIL',
+    WAREHOUSE: 'WAREHOUSE',
+    MANUFACTURING: 'MANUFACTURING',
+    MIXED: 'MIXED'
+}
+
+// Occupancy type labels
+export const OCCUPANCY_TYPE_LABELS = {
+    SINGLE_FAMILY: 'Single Family',
+    MULTI_FAMILY: 'Multi Family',
+    OFFICE: 'Office',
+    RETAIL: 'Retail',
+    WAREHOUSE: 'Warehouse',
+    MANUFACTURING: 'Manufacturing',
+    MIXED: 'Mixed Use'
+}
+
+// Zoning classifications
+export const ZONING_CLASSIFICATION = {
+    RESIDENTIAL: 'RESIDENTIAL',
+    COMMERCIAL: 'COMMERCIAL',
+    INDUSTRIAL: 'INDUSTRIAL',
+    MIXED: 'MIXED',
+    AGRICULTURAL: 'AGRICULTURAL',
+    INSTITUTIONAL: 'INSTITUTIONAL'
+}
+
+// Zoning classification labels
+export const ZONING_CLASSIFICATION_LABELS = {
+    RESIDENTIAL: 'Residential',
+    COMMERCIAL: 'Commercial',
+    INDUSTRIAL: 'Industrial',
+    MIXED: 'Mixed Use',
+    AGRICULTURAL: 'Agricultural',
+    INSTITUTIONAL: 'Institutional'
+}
+
+// Building Permit Types (enhanced list)
+export const BUILDING_PERMIT_TYPE = {
+    NEW_CONSTRUCTION: 'NEW_CONSTRUCTION',
+    ADDITION: 'ADDITION',
+    ALTERATION: 'ALTERATION',
+    RENOVATION: 'RENOVATION',
+    MAJOR_RENOVATION: 'MAJOR_RENOVATION',
+    REPAIR: 'REPAIR',
+    DEMOLITION: 'DEMOLITION',
+    DECK_PATIO: 'DECK_PATIO',
+    FENCE: 'FENCE',
+    ROOFING: 'ROOFING',
+    SIDING: 'SIDING',
+    WINDOWS_DOORS: 'WINDOWS_DOORS',
+    HVAC: 'HVAC',
+    PLUMBING: 'PLUMBING',
+    ELECTRICAL: 'ELECTRICAL',
+    ACCESSORY_STRUCTURE: 'ACCESSORY_STRUCTURE'
+}
+
+// Building permit type labels
+export const BUILDING_PERMIT_TYPE_LABELS = {
+    NEW_CONSTRUCTION: 'New Construction',
+    ADDITION: 'Addition',
+    ALTERATION: 'Alteration',
+    RENOVATION: 'Renovation',
+    MAJOR_RENOVATION: 'Major Renovation',
+    REPAIR: 'Repair',
+    DEMOLITION: 'Demolition',
+    DECK_PATIO: 'Deck/Patio',
+    FENCE: 'Fence',
+    ROOFING: 'Roofing',
+    SIDING: 'Siding',
+    WINDOWS_DOORS: 'Windows/Doors',
+    HVAC: 'HVAC',
+    PLUMBING: 'Plumbing',
+    ELECTRICAL: 'Electrical',
+    ACCESSORY_STRUCTURE: 'Accessory Structure'
+}
+
+// Gas work types
+export const GAS_WORK_TYPE = {
+    NEW_INSTALLATION: 'NEW_INSTALLATION',
+    REPAIR: 'REPAIR',
+    MODIFICATION: 'MODIFICATION',
+    REPLACEMENT: 'REPLACEMENT',
+    INSPECTION: 'INSPECTION',
+    EMERGENCY: 'EMERGENCY'
+}
+
+// Gas work type labels
+export const GAS_WORK_TYPE_LABELS = {
+    NEW_INSTALLATION: 'New Installation',
+    REPAIR: 'Repair',
+    MODIFICATION: 'Modification',
+    REPLACEMENT: 'Replacement',
+    INSPECTION: 'Inspection',
+    EMERGENCY: 'Emergency Work'
+}
+
+// Gas types
+export const GAS_TYPE = {
+    NATURAL_GAS: 'NATURAL_GAS',
+    PROPANE: 'PROPANE',
+    LPG: 'LPG',
+    OTHER: 'OTHER'
+}
+
+// Gas type labels
+export const GAS_TYPE_LABELS = {
+    NATURAL_GAS: 'Natural Gas',
+    PROPANE: 'Propane',
+    LPG: 'Liquefied Petroleum Gas (LPG)',
+    OTHER: 'Other'
+}
+
+// Installation types for gas permits
+export const GAS_INSTALLATION_TYPE = {
+    RESIDENTIAL: 'RESIDENTIAL',
+    COMMERCIAL: 'COMMERCIAL',
+    INDUSTRIAL: 'INDUSTRIAL',
+    INSTITUTIONAL: 'INSTITUTIONAL'
+}
+
+// Gas installation type labels
+export const GAS_INSTALLATION_TYPE_LABELS = {
+    RESIDENTIAL: 'Residential',
+    COMMERCIAL: 'Commercial',
+    INDUSTRIAL: 'Industrial',
+    INSTITUTIONAL: 'Institutional'
+}
+
+// License types
+export const LICENSE_TYPE = {
+    GENERAL_CONTRACTOR: 'GENERAL_CONTRACTOR',
+    ELECTRICAL: 'ELECTRICAL',
+    PLUMBING: 'PLUMBING',
+    HVAC: 'HVAC',
+    GAS_FITTING: 'GAS_FITTING',
+    DEMOLITION: 'DEMOLITION',
+    ROOFING: 'ROOFING',
+    OTHER: 'OTHER'
+}
+
+// License type labels
+export const LICENSE_TYPE_LABELS = {
+    GENERAL_CONTRACTOR: 'General Contractor',
+    ELECTRICAL: 'Electrical',
+    PLUMBING: 'Plumbing',
+    HVAC: 'HVAC',
+    GAS_FITTING: 'Gas Fitting',
+    DEMOLITION: 'Demolition',
+    ROOFING: 'Roofing',
+    OTHER: 'Other'
+}
+
+// Disposal methods
+export const DISPOSAL_METHOD = {
+    DUMPSTER: 'DUMPSTER',
+    TRUCK_HAUL: 'TRUCK_HAUL',
+    ON_SITE: 'ON_SITE',
+    RECYCLING: 'RECYCLING',
+    OTHER: 'OTHER'
+}
+
+// Disposal method labels
+export const DISPOSAL_METHOD_LABELS = {
+    DUMPSTER: 'Dumpster',
+    TRUCK_HAUL: 'Truck Haul Away',
+    ON_SITE: 'On-Site Processing',
+    RECYCLING: 'Recycling Center',
+    OTHER: 'Other Method'
+}
+
+// Debris types
+export const DEBRIS_TYPE = {
+    CONSTRUCTION: 'CONSTRUCTION',
+    DEMOLITION: 'DEMOLITION',
+    RENOVATION: 'RENOVATION',
+    LANDSCAPING: 'LANDSCAPING',
+    HAZARDOUS: 'HAZARDOUS',
+    MIXED: 'MIXED'
+}
+
+// Debris type labels
+export const DEBRIS_TYPE_LABELS = {
+    CONSTRUCTION: 'Construction Debris',
+    DEMOLITION: 'Demolition Debris',
+    RENOVATION: 'Renovation Debris',
+    LANDSCAPING: 'Landscaping Debris',
+    HAZARDOUS: 'Hazardous Materials',
+    MIXED: 'Mixed Debris'
+}
+
+// File types allowed for uploads
+export const ALLOWED_FILE_TYPES = [
+    'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif', 'dwg', 'dxf'
+]
+
+// Max file size (10MB)
+export const MAX_FILE_SIZE = 10 * 1024 * 1024
+
+// Document types
+export const DOCUMENT_TYPE = {
+    PLANS: 'PLANS',
+    SPECIFICATIONS: 'SPECIFICATIONS',
+    LICENSE: 'LICENSE',
+    INSURANCE: 'INSURANCE',
+    CONTRACT: 'CONTRACT',
+    PHOTOS: 'PHOTOS',
+    OTHER: 'OTHER'
+}
+
+// Document type labels
+export const DOCUMENT_TYPE_LABELS = {
+    PLANS: 'Building Plans',
+    SPECIFICATIONS: 'Specifications',
+    LICENSE: 'License Documentation',
+    INSURANCE: 'Insurance Certificate',
+    CONTRACT: 'Contract Documents',
+    PHOTOS: 'Photographs',
+    OTHER: 'Other Documents'
+}
+
+// External URLs
+export const EXTERNAL_URLS = {
+    MUNICIPALITY_WEBSITE: 'https://municipality.gov',
+    FEE_SCHEDULE: 'https://municipality.gov/permits/fees',
+    BUILDING_CODES: 'https://municipality.gov/permits/codes',
+    CONTACT_US: 'https://municipality.gov/contact'
+}
+
+// Pagination defaults
+export const PAGINATION = {
+    DEFAULT_PAGE_SIZE: 20,
+    PAGE_SIZE_OPTIONS: [10, 20, 50, 100]
+}
+
+// Notification types
+export const NOTIFICATION_TYPE = {
+    SUCCESS: 'SUCCESS',
+    ERROR: 'ERROR',
+    WARNING: 'WARNING',
+    INFO: 'INFO'
+}
+
+// User roles
+export const USER_ROLE = {
+    ADMIN: 'ADMIN',
+    REVIEWER: 'REVIEWER',
+    APPLICANT: 'APPLICANT',
+    CONTRACTOR: 'CONTRACTOR'
+}
+
+// User role labels
+export const USER_ROLE_LABELS = {
+    ADMIN: 'Administrator',
+    REVIEWER: 'Permit Reviewer',
+    APPLICANT: 'Applicant',
+    CONTRACTOR: 'Contractor'
+}
+
+// Form validation patterns
+export const VALIDATION_PATTERNS = {
+    EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    PHONE: /^(\+1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})(\s?(ext|x|extension)[-.\s]?(\d+))?$/,
+    ZIP_CODE: /^\d{5}(-\d{4})?$/,
+    LICENSE_NUMBER: /^[A-Za-z0-9-]+$/
+}
+
+// US States list
 export const US_STATES = [
     { value: 'AL', label: 'Alabama' },
     { value: 'AK', label: 'Alaska' },
@@ -54,624 +415,79 @@ export const US_STATES = [
     { value: 'WY', label: 'Wyoming' }
 ]
 
-// Zoning Classifications
+// Zoning classifications with detailed options
 export const ZONING_CLASSIFICATIONS = [
-    { value: 'RESIDENTIAL_SINGLE_FAMILY', label: 'Residential - Single Family', description: 'Single-family detached homes' },
-    { value: 'RESIDENTIAL_MULTI_FAMILY', label: 'Residential - Multi-Family', description: 'Apartments, condos, townhomes' },
-    { value: 'RESIDENTIAL_MIXED_USE', label: 'Residential - Mixed Use', description: 'Residential with commercial' },
-    { value: 'COMMERCIAL_RETAIL', label: 'Commercial - Retail', description: 'Stores, shops, restaurants' },
-    { value: 'COMMERCIAL_OFFICE', label: 'Commercial - Office', description: 'Office buildings, professional services' },
-    { value: 'COMMERCIAL_MIXED_USE', label: 'Commercial - Mixed Use', description: 'Mixed commercial activities' },
-    { value: 'INDUSTRIAL_LIGHT', label: 'Industrial - Light', description: 'Light manufacturing, warehouses' },
-    { value: 'INDUSTRIAL_HEAVY', label: 'Industrial - Heavy', description: 'Heavy manufacturing, processing' },
-    { value: 'AGRICULTURAL', label: 'Agricultural', description: 'Farming, agricultural use' },
-    { value: 'INSTITUTIONAL', label: 'Institutional', description: 'Schools, hospitals, government' },
-    { value: 'RECREATIONAL', label: 'Recreational', description: 'Parks, sports facilities' }
+    { value: 'R1', label: 'R1 - Single Family Residential', description: 'Single family residential low density' },
+    { value: 'R2', label: 'R2 - Single Family Residential', description: 'Single family residential medium density' },
+    { value: 'R3', label: 'R3 - Multi-Family Residential', description: 'Multi-family residential' },
+    { value: 'R4', label: 'R4 - High Density Residential', description: 'High density residential' },
+    { value: 'C1', label: 'C1 - Neighborhood Commercial', description: 'Local commercial services' },
+    { value: 'C2', label: 'C2 - General Commercial', description: 'General commercial and retail' },
+    { value: 'C3', label: 'C3 - Central Business', description: 'Central business district' },
+    { value: 'I1', label: 'I1 - Light Industrial', description: 'Light industrial and manufacturing' },
+    { value: 'I2', label: 'I2 - Heavy Industrial', description: 'Heavy industrial and manufacturing' },
+    { value: 'M1', label: 'M1 - Mixed Use', description: 'Mixed use development' },
+    { value: 'AG', label: 'AG - Agricultural', description: 'Agricultural and farming' },
+    { value: 'OS', label: 'OS - Open Space', description: 'Parks and open space' },
+    { value: 'PUD', label: 'PUD - Planned Unit Development', description: 'Planned development' }
 ]
 
-// Enhanced Building Permit Types
-export const BUILDING_PERMIT_TYPE = [
-    { value: 'NEW_CONSTRUCTION', label: 'New Construction', description: 'New building construction' },
-    { value: 'ADDITION', label: 'Addition', description: 'Adding to existing structure' },
-    { value: 'ALTERATION', label: 'Alteration', description: 'Modifying existing structure' },
-    { value: 'RENOVATION', label: 'Renovation', description: 'Interior/exterior improvements' },
-    { value: 'MAJOR_RENOVATION', label: 'Major Renovation', description: 'Extensive structural changes' },
-    { value: 'REPAIR', label: 'Repair', description: 'Structural or system repairs' },
-    { value: 'DEMOLITION', label: 'Demolition', description: 'Building demolition' },
-    { value: 'DECK_PATIO', label: 'Deck/Patio', description: 'Outdoor structures' },
-    { value: 'FENCE', label: 'Fence', description: 'Fencing installation' },
-    { value: 'ROOFING', label: 'Roofing', description: 'Roof replacement or repair' },
-    { value: 'SIDING', label: 'Siding', description: 'Exterior siding work' },
-    { value: 'WINDOWS_DOORS', label: 'Windows/Doors', description: 'Window or door replacement' },
-    { value: 'HVAC', label: 'HVAC', description: 'Heating, ventilation, A/C' },
-    { value: 'PLUMBING', label: 'Plumbing', description: 'Plumbing installation/repair' },
-    { value: 'ELECTRICAL', label: 'Electrical', description: 'Electrical work' },
-    { value: 'ACCESSORY_STRUCTURE', label: 'Accessory Structure', description: 'Sheds, garages, etc.' }
-]
-
-// Enhanced Gas Work Types
-export const GAS_WORK_TYPE = [
-    { value: 'NEW_INSTALLATION', label: 'New Installation', description: 'New gas line and appliances' },
-    { value: 'LINE_EXTENSION', label: 'Line Extension', description: 'Extending existing gas line' },
-    { value: 'APPLIANCE_INSTALLATION', label: 'Appliance Installation', description: 'Installing new gas appliances' },
-    { value: 'APPLIANCE_REPLACEMENT', label: 'Appliance Replacement', description: 'Replacing existing appliances' },
-    { value: 'LINE_REPAIR', label: 'Line Repair', description: 'Repairing existing gas lines' },
-    { value: 'METER_UPGRADE', label: 'Meter Upgrade', description: 'Gas meter replacement/upgrade' },
-    { value: 'REGULATOR_INSTALLATION', label: 'Regulator Installation', description: 'Pressure regulator work' },
-    { value: 'SYSTEM_MODIFICATION', label: 'System Modification', description: 'Modifying existing gas system' },
-    { value: 'EMERGENCY_REPAIR', label: 'Emergency Repair', description: 'Emergency gas system repair' }
-]
-
-// Enhanced Gas Types
-export const GAS_TYPE = [
-    { value: 'NATURAL_GAS', label: 'Natural Gas', description: 'Utility-supplied natural gas' },
-    { value: 'PROPANE', label: 'Propane (LP)', description: 'Liquefied petroleum gas' },
-    { value: 'BUTANE', label: 'Butane', description: 'Butane gas systems' },
-    { value: 'MIXED_GAS', label: 'Mixed Gas', description: 'Multiple gas types' }
-]
-
-// Gas Installation Types
-export const GAS_INSTALLATION_TYPE = [
-    { value: 'UNDERGROUND', label: 'Underground', description: 'Below-ground installation' },
-    { value: 'ABOVE_GROUND', label: 'Above Ground', description: 'Above-ground installation' },
-    { value: 'INTERIOR', label: 'Interior', description: 'Inside building' },
-    { value: 'EXTERIOR', label: 'Exterior', description: 'Outside building' },
-    { value: 'MIXED', label: 'Mixed', description: 'Combination of types' }
-]
-
-// Enhanced Building Types
-export const BUILDING_TYPE = [
-    { value: 'SINGLE_FAMILY', label: 'Single Family Home', description: 'Detached single-family residence' },
-    { value: 'DUPLEX', label: 'Duplex', description: 'Two-unit residential building' },
-    { value: 'TOWNHOUSE', label: 'Townhouse', description: 'Attached single-family unit' },
-    { value: 'CONDOMINIUM', label: 'Condominium', description: 'Condo unit' },
-    { value: 'APARTMENT', label: 'Apartment Building', description: 'Multi-unit residential' },
-    { value: 'COMMERCIAL', label: 'Commercial', description: 'Business/retail building' },
-    { value: 'INDUSTRIAL', label: 'Industrial', description: 'Manufacturing/warehouse' },
-    { value: 'INSTITUTIONAL', label: 'Institutional', description: 'Schools, hospitals, etc.' },
-    { value: 'MIXED_USE', label: 'Mixed Use', description: 'Combined residential/commercial' },
-    { value: 'ACCESSORY', label: 'Accessory Structure', description: 'Garage, shed, etc.' }
-]
-
-// Enhanced Occupancy Types
-export const OCCUPANCY_TYPE = [
-    { value: 'RESIDENTIAL', label: 'Residential', description: 'Living quarters' },
-    { value: 'COMMERCIAL', label: 'Commercial', description: 'Business use' },
-    { value: 'INDUSTRIAL', label: 'Industrial', description: 'Manufacturing/processing' },
-    { value: 'INSTITUTIONAL', label: 'Institutional', description: 'Public services' },
-    { value: 'ASSEMBLY', label: 'Assembly', description: 'Gatherings, events' },
-    { value: 'STORAGE', label: 'Storage', description: 'Warehouse, storage' },
-    { value: 'UTILITY', label: 'Utility', description: 'Utilities, infrastructure' },
-    { value: 'MIXED', label: 'Mixed Use', description: 'Multiple occupancy types' }
-]
-
-// Enhanced Applicant Types
-export const APPLICANT_TYPE = [
-    { value: 'OWNER', label: 'Property Owner', description: 'I own the property' },
-    { value: 'CONTRACTOR', label: 'Licensed Contractor', description: 'I am a licensed contractor' },
-    { value: 'ARCHITECT', label: 'Licensed Architect', description: 'I am a licensed architect' },
-    { value: 'ENGINEER', label: 'Licensed Engineer', description: 'I am a licensed engineer' },
-    { value: 'AGENT', label: 'Authorized Agent', description: 'I represent the property owner' },
-    { value: 'OTHER', label: 'Other', description: 'Other relationship to property' }
-]
-
-// Permit Status with enhanced information
-export const PERMIT_STATUS = {
-    DRAFT: 'DRAFT',
-    SUBMITTED: 'SUBMITTED',
-    PENDING_REVIEW: 'PENDING_REVIEW',
-    UNDER_REVIEW: 'UNDER_REVIEW',
-    APPROVED: 'APPROVED',
-    APPROVED_WITH_CONDITIONS: 'APPROVED_WITH_CONDITIONS',
-    REJECTED: 'REJECTED',
-    EXPIRED: 'EXPIRED',
-    WITHDRAWN: 'WITHDRAWN',
-    ON_HOLD: 'ON_HOLD'
-}
-
-export const PERMIT_STATUS_LABELS = {
-    DRAFT: 'Draft',
-    SUBMITTED: 'Submitted',
-    PENDING_REVIEW: 'Pending Review',
-    UNDER_REVIEW: 'Under Review',
-    APPROVED: 'Approved',
-    APPROVED_WITH_CONDITIONS: 'Approved with Conditions',
-    REJECTED: 'Rejected',
-    EXPIRED: 'Expired',
-    WITHDRAWN: 'Withdrawn',
-    ON_HOLD: 'On Hold'
-}
-
+// Permit status colors for UI theming
 export const PERMIT_STATUS_COLORS = {
-    DRAFT: 'gray',
-    SUBMITTED: 'blue',
-    PENDING_REVIEW: 'yellow',
-    UNDER_REVIEW: 'orange',
-    APPROVED: 'green',
-    APPROVED_WITH_CONDITIONS: 'emerald',
-    REJECTED: 'red',
-    EXPIRED: 'gray',
-    WITHDRAWN: 'purple',
-    ON_HOLD: 'amber'
-}
-
-// License Types
-export const LICENSE_TYPES = [
-    { value: 'GENERAL_CONTRACTOR', label: 'General Contractor' },
-    { value: 'ELECTRICAL_CONTRACTOR', label: 'Electrical Contractor' },
-    { value: 'PLUMBING_CONTRACTOR', label: 'Plumbing Contractor' },
-    { value: 'HVAC_CONTRACTOR', label: 'HVAC Contractor' },
-    { value: 'ROOFING_CONTRACTOR', label: 'Roofing Contractor' },
-    { value: 'MASONRY_CONTRACTOR', label: 'Masonry Contractor' },
-    { value: 'DEMOLITION_CONTRACTOR', label: 'Demolition Contractor' },
-    { value: 'SPECIALTY_CONTRACTOR', label: 'Specialty Contractor' }
-]
-
-// Gas License Types
-export const GAS_LICENSE_TYPES = [
-    { value: 'GAS_FITTER', label: 'Gas Fitter License' },
-    { value: 'GAS_CONTRACTOR', label: 'Gas Contractor License' },
-    { value: 'MASTER_GAS_FITTER', label: 'Master Gas Fitter' },
-    { value: 'GAS_APPLIANCE_INSTALLER', label: 'Gas Appliance Installer' },
-    { value: 'PROPANE_INSTALLER', label: 'Propane System Installer' }
-]
-
-// Debris Disposal Types
-export const DEBRIS_DISPOSAL_TYPES = [
-    { value: 'CONSTRUCTION', label: 'Construction Debris' },
-    { value: 'DEMOLITION', label: 'Demolition Debris' },
-    { value: 'RENOVATION', label: 'Renovation Debris' },
-    { value: 'LANDSCAPING', label: 'Landscaping Waste' },
-    { value: 'HAZARDOUS', label: 'Hazardous Materials' },
-    { value: 'MIXED', label: 'Mixed Debris' }
-]
-
-// Disposal Methods
-export const DISPOSAL_METHODS = [
-    { value: 'DUMPSTER', label: 'Dumpster Rental' },
-    { value: 'TRUCK_HAUL', label: 'Truck Haul Away' },
-    { value: 'SELF_HAUL', label: 'Self Haul to Facility' },
-    { value: 'ON_SITE', label: 'On-Site Processing' },
-    { value: 'RECYCLING', label: 'Recycling Facility' }
-]
-
-// File Upload Configuration
-export const FILE_UPLOAD = {
-    MAX_SIZE: 10 * 1024 * 1024, // 10MB
-    ALLOWED_TYPES: [
-        'application/pdf',
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ],
-    ALLOWED_EXTENSIONS: ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.doc', '.docx'],
-    CHUNK_SIZE: 1024 * 1024 // 1MB chunks for large file uploads
-}
-
-// API Configuration
-export const API_CONFIG = {
-    BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
-    TIMEOUT: 30000, // 30 seconds
-    RETRY_ATTEMPTS: 3,
-    RETRY_DELAY: 1000 // 1 second
-}
-
-// Application Information
-export const APP_INFO = {
-    NAME: 'PermitPro',
-    VERSION: '1.0.0',
-    DESCRIPTION: 'Professional Permit Management System',
-    COMPANY: 'Municipality Services',
-    SUPPORT_EMAIL: 'support@permitpro.com',
-    SUPPORT_PHONE: '(555) 123-4567'
-}
-
-// User Roles and Permissions
-export const USER_ROLES = {
-    USER: 'USER',
-    CONTRACTOR: 'CONTRACTOR',
-    REVIEWER: 'REVIEWER',
-    ADMIN: 'ADMIN'
-}
-
-export const USER_ROLE_LABELS = {
-    USER: 'Standard User',
-    CONTRACTOR: 'Licensed Contractor',
-    REVIEWER: 'Permit Reviewer',
-    ADMIN: 'System Administrator'
-}
-
-export const PERMISSIONS = {
-    READ: 'read',
-    CREATE: 'create',
-    UPDATE: 'update',
-    UPDATE_OWN: 'update_own',
-    DELETE: 'delete',
-    SUBMIT: 'submit',
-    REVIEW: 'review',
-    APPROVE: 'approve',
-    REJECT: 'reject',
-    ADMIN: 'admin'
-}
-
-// Validation Rules
-export const VALIDATION = {
-    EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    PHONE_REGEX: /^\(\d{3}\) \d{3}-\d{4}$/,
-    ZIP_REGEX: /^\d{5}(-\d{4})?$/,
-    PARCEL_ID_REGEX: /^[A-Z0-9-]{3,20}$/i,
-    LICENSE_REGEX: /^[A-Z0-9-]{6,20}$/i,
-    MIN_PASSWORD_LENGTH: 8,
-    MAX_DESCRIPTION_LENGTH: 1000,
-    MAX_PROJECT_COST: 10000000,
-    MAX_BTU_INPUT: 1000000,
-    MAX_GAS_LINE_LENGTH: 500,
-    MAX_APPLIANCES: 20
-}
-
-// Pagination Settings
-export const PAGINATION = {
-    DEFAULT_PAGE_SIZE: 20,
-    PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
-    MAX_PAGE_SIZE: 100
-}
-
-// Date Formats
-export const DATE_FORMATS = {
-    DISPLAY: 'MM/dd/yyyy',
-    INPUT: 'yyyy-MM-dd',
-    TIMESTAMP: 'MM/dd/yyyy HH:mm',
-    RELATIVE: 'relative' // For formatDistanceToNow
-}
-
-// Theme Configuration
-export const THEMES = {
-    LIGHT: 'light',
-    DARK: 'dark',
-    SYSTEM: 'system'
-}
-
-// Error Messages
-export const ERROR_MESSAGES = {
-    NETWORK: 'Network error. Please check your connection.',
-    UNAUTHORIZED: 'You are not authorized to perform this action.',
-    FORBIDDEN: 'Access denied.',
-    NOT_FOUND: 'The requested resource was not found.',
-    VALIDATION: 'Please check your input and try again.',
-    SERVER_ERROR: 'Server error. Please try again later.',
-    TIMEOUT: 'Request timed out. Please try again.',
-    FILE_TOO_LARGE: 'File is too large. Please choose a smaller file.',
-    INVALID_FILE_TYPE: 'Invalid file type. Please choose a supported file format.',
-    FORM_INCOMPLETE: 'Please complete all required fields.',
-    LICENSE_EXPIRED: 'License has expired. Please renew before proceeding.',
-    PERMIT_EXPIRED: 'Permit has expired.',
-    INVALID_CREDENTIALS: 'Invalid email or password.',
-    EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
-    WEAK_PASSWORD: 'Password does not meet security requirements.'
-}
-
-// Success Messages
-export const SUCCESS_MESSAGES = {
-    CREATED: 'Successfully created!',
-    UPDATED: 'Successfully updated!',
-    DELETED: 'Successfully deleted!',
-    SUBMITTED: 'Successfully submitted!',
-    APPROVED: 'Successfully approved!',
-    REJECTED: 'Application rejected.',
-    SAVED: 'Changes saved successfully!',
-    UPLOADED: 'File uploaded successfully!',
-    DOWNLOADED: 'Download started!',
-    EMAIL_SENT: 'Email sent successfully!',
-    PASSWORD_CHANGED: 'Password changed successfully!',
-    LOGGED_IN: 'Welcome back!',
-    LOGGED_OUT: 'Logged out successfully!',
-    REGISTERED: 'Account created successfully!'
-}
-
-// Navigation Routes
-export const ROUTES = {
-    HOME: '/',
-    DASHBOARD: '/dashboard',
-    APPLY: '/apply',
-    BUILDING_PERMITS: '/building-permits',
-    GAS_PERMITS: '/gas-permits',
-    PERMIT_DETAILS: '/permit/:id',
-    PROFILE: '/profile',
-    SETTINGS: '/settings',
-    REPORTS: '/reports',
-    HELP: '/help',
-    LOGIN: '/login',
-    REGISTER: '/register',
-    FORGOT_PASSWORD: '/forgot-password',
-    RESET_PASSWORD: '/reset-password',
-    TERMS: '/terms',
-    PRIVACY: '/privacy',
-    CONTACT: '/contact'
-}
-
-// Local Storage Keys
-export const STORAGE_KEYS = {
-    AUTH_TOKEN: 'auth_token',
-    USER_DATA: 'user_data',
-    THEME: 'theme',
-    NOTIFICATIONS: 'notifications',
-    FORM_DRAFTS: 'form_drafts',
-    PREFERENCES: 'user_preferences',
-    LAST_VISITED: 'last_visited_page'
-}
-
-// Notification Types
-export const NOTIFICATION_TYPES = {
-    SUCCESS: 'success',
-    ERROR: 'error',
-    WARNING: 'warning',
-    INFO: 'info'
-}
-
-// Notification Categories
-export const NOTIFICATION_CATEGORIES = {
-    PERMIT_STATUS: 'permit_status',
-    DEADLINE: 'deadline',
-    DOCUMENT: 'document',
-    SYSTEM: 'system',
-    REMINDER: 'reminder'
-}
-
-// External URLs
-export const EXTERNAL_URLS = {
-    H2_CONSOLE: import.meta.env.VITE_H2_CONSOLE_URL || 'http://localhost:8080/h2-console',
-    SWAGGER: import.meta.env.VITE_SWAGGER_URL || 'http://localhost:8080/swagger-ui.html',
-    SUPPORT_EMAIL: 'mailto:support@permitpro.com',
-    SUPPORT_PHONE: 'tel:+15551234567',
-    MUNICIPALITY_WEBSITE: 'https://www.municipality.gov',
-    BUILDING_CODES: 'https://www.municipality.gov/building-codes',
-    FEE_SCHEDULE: 'https://www.municipality.gov/permit-fees'
-}
-
-// Feature Flags
-export const FEATURES = {
-    DEBUG_MODE: import.meta.env.VITE_ENABLE_DEBUG === 'true',
-    MOCK_DATA: import.meta.env.VITE_ENABLE_MOCK_DATA === 'true',
-    ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
-    FILE_UPLOAD: import.meta.env.VITE_ENABLE_FILE_UPLOAD !== 'false',
-    NOTIFICATIONS: import.meta.env.VITE_ENABLE_NOTIFICATIONS !== 'false',
-    REAL_TIME_UPDATES: import.meta.env.VITE_ENABLE_REAL_TIME === 'true',
-    GEOLOCATION: import.meta.env.VITE_ENABLE_GEOLOCATION !== 'false'
-}
-
-// Chart Colors
-export const CHART_COLORS = [
-    '#3B82F6', // Blue
-    '#F59E0B', // Yellow
-    '#10B981', // Green
-    '#EF4444', // Red
-    '#8B5CF6', // Purple
-    '#F97316', // Orange
-    '#06B6D4', // Cyan
-    '#84CC16', // Lime
-    '#EC4899', // Pink
-    '#6B7280'  // Gray
-]
-
-// Time Periods for Reports
-export const TIME_PERIODS = [
-    { value: '7', label: 'Last 7 days' },
-    { value: '30', label: 'Last 30 days' },
-    { value: '90', label: 'Last 90 days' },
-    { value: '365', label: 'Last year' },
-    { value: 'custom', label: 'Custom range' }
-]
-
-// Form Steps Configuration
-export const FORM_STEPS = {
-    BUILDING: [
-        { id: 'permit-type', title: 'Permit Type', required: true },
-        { id: 'contact', title: 'Contact Information', required: true },
-        { id: 'location', title: 'Property Location', required: true },
-        { id: 'building-details', title: 'Building Details', required: true },
-        { id: 'contractor', title: 'Contractor Information', required: false },
-        { id: 'debris', title: 'Debris Disposal', required: false },
-        { id: 'review', title: 'Review & Submit', required: true }
-    ],
-    GAS: [
-        { id: 'permit-type', title: 'Permit Type', required: true },
-        { id: 'contact', title: 'Contact Information', required: true },
-        { id: 'location', title: 'Property Location', required: true },
-        { id: 'gas-details', title: 'Gas Installation', required: true },
-        { id: 'gas-contractor', title: 'Gas Contractor', required: true },
-        { id: 'review', title: 'Review & Submit', required: true }
-    ]
-}
-
-// Processing Time Estimates (in business days)
-export const PROCESSING_TIMES = {
-    BUILDING: {
-        MINOR_REPAIR: { min: 1, max: 3 },
-        ALTERATION: { min: 3, max: 7 },
-        ADDITION: { min: 5, max: 10 },
-        NEW_CONSTRUCTION: { min: 10, max: 21 },
-        MAJOR_RENOVATION: { min: 7, max: 14 }
+    DRAFT: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-800',
+        border: 'border-gray-300',
+        darkBg: 'dark:bg-gray-800',
+        darkText: 'dark:text-gray-200',
+        darkBorder: 'dark:border-gray-600'
     },
-    GAS: {
-        APPLIANCE_INSTALLATION: { min: 1, max: 3 },
-        LINE_EXTENSION: { min: 2, max: 5 },
-        NEW_INSTALLATION: { min: 3, max: 7 },
-        SYSTEM_MODIFICATION: { min: 2, max: 5 }
+    SUBMITTED: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-800',
+        border: 'border-blue-300',
+        darkBg: 'dark:bg-blue-900',
+        darkText: 'dark:text-blue-200',
+        darkBorder: 'dark:border-blue-700'
+    },
+    UNDER_REVIEW: {
+        bg: 'bg-amber-100',
+        text: 'text-amber-800',
+        border: 'border-amber-300',
+        darkBg: 'dark:bg-amber-900',
+        darkText: 'dark:text-amber-200',
+        darkBorder: 'dark:border-amber-700'
+    },
+    APPROVED: {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        border: 'border-green-300',
+        darkBg: 'dark:bg-green-900',
+        darkText: 'dark:text-green-200',
+        darkBorder: 'dark:border-green-700'
+    },
+    REJECTED: {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        border: 'border-red-300',
+        darkBg: 'dark:bg-red-900',
+        darkText: 'dark:text-red-200',
+        darkBorder: 'dark:border-red-700'
+    },
+    EXPIRED: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
+        border: 'border-gray-300',
+        darkBg: 'dark:bg-gray-800',
+        darkText: 'dark:text-gray-400',
+        darkBorder: 'dark:border-gray-600'
+    },
+    CANCELLED: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
+        border: 'border-gray-300',
+        darkBg: 'dark:bg-gray-800',
+        darkText: 'dark:text-gray-400',
+        darkBorder: 'dark:border-gray-600'
     }
-}
-
-// Fee Calculation Factors
-export const FEE_STRUCTURE = {
-    BUILDING: {
-        BASE_FEE: 150,
-        PERCENTAGE_RATE: 0.005, // 0.5% of project cost
-        MINIMUM_FEE: 150,
-        RUSH_PROCESSING_MULTIPLIER: 2.0,
-        REINSPECTION_FEE: 75
-    },
-    GAS: {
-        BASE_FEE: 100,
-        BTU_RATE: 0.00005, // per BTU
-        MINIMUM_FEE: 100,
-        EMERGENCY_MULTIPLIER: 1.5,
-        PRESSURE_TEST_FEE: 50
-    }
-}
-
-// Default Form Values
-export const DEFAULT_FORM_VALUES = {
-    CONTACT_INFO: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        address1: '',
-        address2: '',
-        city: '',
-        state: '',
-        zipCode: ''
-    },
-    LOCATION_INFO: {
-        parcelId: '',
-        propertyAddress: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        propertyOwnerName: '',
-        latitude: '',
-        longitude: '',
-        lotSizeSqft: '',
-        zoningClassification: ''
-    },
-    BUILDING_PERMIT_INFO: {
-        permitFor: '',
-        projectCost: '',
-        workDescription: '',
-        tenantOwnerName: '',
-        tenantOwnerPhone: '',
-        tenantOwnerAddress: '',
-        developmentTitle: '',
-        buildingType: '',
-        occupancyType: '',
-        ownerDoingWork: false,
-        hasArchitect: false,
-        hasEngineer: false
-    },
-    GAS_PERMIT_INFO: {
-        workType: '',
-        gasType: '',
-        installationType: '',
-        totalBtuInput: '',
-        gasLineLengthFeet: '',
-        numberOfAppliances: '',
-        gasLineSizeInches: '',
-        projectCost: '',
-        workDescription: '',
-        applianceDetails: '',
-        requiresMeterUpgrade: false,
-        requiresRegulator: false,
-        requiresPressureTest: false,
-        emergencyShutoffRequired: false
-    },
-    CONTRACTOR_LICENSE: {
-        name: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        phoneNumber: '',
-        email: '',
-        dba: '',
-        licenseType: '',
-        licenseNumber: '',
-        expirationDate: ''
-    },
-    DEBRIS_DISPOSAL: {
-        dumpsterLocation: '',
-        companyName: '',
-        disposalMethod: '',
-        debrisType: '',
-        estimatedVolumeCubicYards: '',
-        isHazardousMaterial: false
-    }
-}
-
-// Regular Expressions
-export const REGEX_PATTERNS = {
-    EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    PHONE: /^\(\d{3}\) \d{3}-\d{4}$/,
-    ZIP_CODE: /^\d{5}(-\d{4})?$/,
-    PARCEL_ID: /^[A-Z0-9-]{3,20}$/i,
-    LICENSE_NUMBER: /^[A-Z0-9-]{6,20}$/i,
-    CURRENCY: /^\$?[\d,]+(\.\d{1,2})?$/,
-    DIGITS_ONLY: /^\d+$/,
-    ALPHANUMERIC: /^[a-zA-Z0-9]+$/,
-    ALPHANUMERIC_SPACES: /^[a-zA-Z0-9\s]+$/
-}
-
-// Environment Helpers
-export const ENV = {
-    IS_DEVELOPMENT: import.meta.env.MODE === 'development',
-    IS_PRODUCTION: import.meta.env.MODE === 'production',
-    IS_DEBUG: import.meta.env.VITE_ENABLE_DEBUG === 'true',
-    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
-}
-
-// Browser Support
-export const BROWSER_SUPPORT = {
-    GEOLOCATION: 'geolocation' in navigator,
-    FILE_API: window.File && window.FileReader && window.FileList && window.Blob,
-    LOCAL_STORAGE: typeof Storage !== 'undefined',
-    NOTIFICATIONS: 'Notification' in window,
-    SERVICE_WORKER: 'serviceWorker' in navigator
-}
-
-// Export all constants as default object
-export default {
-    US_STATES,
-    ZONING_CLASSIFICATIONS,
-    BUILDING_PERMIT_TYPE,
-    GAS_WORK_TYPE,
-    GAS_TYPE,
-    GAS_INSTALLATION_TYPE,
-    BUILDING_TYPE,
-    OCCUPANCY_TYPE,
-    APPLICANT_TYPE,
-    PERMIT_STATUS,
-    PERMIT_STATUS_LABELS,
-    PERMIT_STATUS_COLORS,
-    LICENSE_TYPES,
-    GAS_LICENSE_TYPES,
-    DEBRIS_DISPOSAL_TYPES,
-    DISPOSAL_METHODS,
-    FILE_UPLOAD,
-    API_CONFIG,
-    APP_INFO,
-    USER_ROLES,
-    USER_ROLE_LABELS,
-    PERMISSIONS,
-    VALIDATION,
-    PAGINATION,
-    DATE_FORMATS,
-    THEMES,
-    ERROR_MESSAGES,
-    SUCCESS_MESSAGES,
-    ROUTES,
-    STORAGE_KEYS,
-    NOTIFICATION_TYPES,
-    NOTIFICATION_CATEGORIES,
-    EXTERNAL_URLS,
-    FEATURES,
-    CHART_COLORS,
-    TIME_PERIODS,
-    FORM_STEPS,
-    PROCESSING_TIMES,
-    FEE_STRUCTURE,
-    DEFAULT_FORM_VALUES,
-    REGEX_PATTERNS,
-    ENV,
-    BROWSER_SUPPORT
 }

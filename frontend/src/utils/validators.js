@@ -208,6 +208,41 @@ export const validators = {
     }
 }
 
+// Individual validator exports for easier importing
+export const validateRequired = validators.required
+export const validateEmail = validators.email
+export const validatePhone = validators.phone
+export const validateZipCode = validators.zipCode
+export const validateNumber = validators.number
+export const validatePositiveNumber = validators.positiveNumber
+export const validateInteger = validators.integer
+export const validateDate = validators.date
+export const validateFutureDate = validators.futureDate
+export const validatePastDate = validators.pastDate
+export const validateLicenseNumber = validators.licenseNumber
+export const validateCurrency = validators.currency
+export const validatePercentage = validators.percentage
+export const validateUrl = validators.url
+
+// Phone number formatter
+export const formatPhoneNumber = (value) => {
+    if (!value) return ''
+
+    // Remove all non-digit characters
+    const cleaned = value.replace(/\D/g, '')
+
+    // Format based on length
+    if (cleaned.length <= 3) {
+        return cleaned
+    } else if (cleaned.length <= 6) {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`
+    } else if (cleaned.length <= 10) {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
+    } else {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)} ext. ${cleaned.slice(10)}`
+    }
+}
+
 // Composite validators for common field types
 export const compositeValidators = {
     requiredEmail: [validators.required, validators.email],

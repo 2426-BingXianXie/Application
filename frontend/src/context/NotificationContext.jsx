@@ -4,6 +4,9 @@ import toast from 'react-hot-toast'
 // Notification Context
 const NotificationContext = createContext()
 
+// Export the context for direct use
+export { NotificationContext }
+
 // Notification Types
 export const NOTIFICATION_TYPES = {
     SUCCESS: 'success',

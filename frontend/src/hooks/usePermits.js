@@ -492,4 +492,12 @@ export const usePermitComments = (permitId) => {
     }
 }
 
-export default usePermits
+// Hook for gas permits (specific)
+export const useGasPermits = (params = {}) => {
+    return usePermits({ ...params, permitType: 'gas' })
+}
+
+// Hook for building permits (specific)
+export const useBuildingPermits = (params = {}) => {
+    return usePermits({ ...params, permitType: 'building' })
+}

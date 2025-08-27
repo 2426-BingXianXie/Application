@@ -1,564 +1,262 @@
-import React, { useState, useEffect } from 'react'
-import { Zap, Gauge, Wrench, AlertTriangle, CheckCircle, Calculator } from 'lucide-react'
-import Input from '../ui/Input'
+import React from 'react'
+import { Flame, DollarSign, Settings, AlertTriangle } from 'lucide-react'
+import Input, { Textarea } from '../ui/Input'
 import Select from '../ui/Select'
-import Card from '../ui/Card'
-import { GAS_WORK_TYPE, GAS_TYPE, GAS_INSTALLATION_TYPE } from '../../utils/constants'
-import { formatCurrency, parseCurrency } from '../../utils/formatters'
+import { GAS_WORK_TYPE_LABELS, GAS_TYPE_LABELS, GAS_INSTALLATION_TYPE_LABELS } from '../../utils/constants'
 
 const GasPermitForm = ({
-                           data = {},
-                           onChange,
-                           errors = {},
-                           readOnly = false,
-                           showValidation = true
+                           formData,
+                           errors,
+                           updateField,
+                           getFieldValue
                        }) => {
-    const [formData, setFormData] = useState({
-                                                 workType: '',
-                                                 gasType: '',
-                                                 installationType: '',
-                                                 totalBtuInput: '',
-                                                 gasLineLengthFeet: '',
-                                                 numberOfAppliances: '',
-                                                 gasLineSizeInches: '',
-                                                 projectCost: '',
-                                                 workDescription: '',
-                                                 applianceDetails: '',
-                                                 requiresMeterUpgrade: false,
-                                                 requiresRegulator: false,
-                                                 requiresPressureTest: false,
-                                                 emergencyShutoffRequired: false,
-                                                 ...data
-                                             })
 
-    const [validationErrors, setValidationErrors] = useState({})
-    const [touched, setTouched] = useState({})
-    const [calculatedSpecs, setCalculatedSpecs] = useState(null)
-    const [safetyWarnings, setSafetyWarnings] = useState([])
+    const workTypeOptions = [
+        { value: '', label: 'Select work type' },
+        ...Object.entries(GAS_WORK_TYPE_LABELS).map(([value, label]) => ({
+            value,
+            label
+        }))
+    ]
 
-    useEffect(() => {
-        setFormData(prev => ({ ...prev, ...data }))
-    }, [data])
+    const gasTypeOptions = [
+        { value: '', label: 'Select gas type' },
+        ...Object.entries(GAS_TYPE_LABELS).map(([value, label]) => ({
+            value,
+            label
+        }))
+    ]
 
-    // Calculate gas line specifications
-    const calculateGasSpecs = (btuInput, lineLength, gasType) => {
-        if (!btuInput || !lineLength || !gasType) {
-            setCalculatedSpecs(null)
-            return
-        }
-
-        try {
-            const btu = parseInt(btuInput)
-            const length = parseInt(lineLength)
-
-            // Simplified gas line sizing calculation
-            // In reality, this would use proper gas sizing tables
-            let recommendedSize = 0.5 // Default 1/2 inch
-
-            if (btu > 200000 || length > 100) {
-                recommendedSize = 1.0
-            } else if (btu > 100000 || length > 50) {
-                recommendedSize = 0.75
-            }
-
-            const pressureDrop = (btu * length) / 100000 // Simplified calculation
-            const requiresRegulator = pressureDrop > 0.5
-            const requiresPressureTest = btu > 50000 || recommendedSize >= 0.75
-
-            setCalculatedSpecs({
-                                   recommendedSize,
-                                   pressureDrop: pressureDrop.toFixed(2),
-                                   requiresRegulator,
-                                   requiresPressureTest,
-                                   maxCapacity: Math.round(btu * 1.25) // 25% safety factor
-                               })
-
-            // Update form data with calculated requirements
-            updateField('requiresRegulator', requiresRegulator)
-            updateField('requiresPressureTest', requiresPressureTest)
-
-        } catch (error) {
-            console.error('Gas calculation failed:', error)
-            setCalculatedSpecs(null)
-        }
-    }
-
-    // Generate safety warnings based on input
-    const updateSafetyWarnings = (data) => {
-        const warnings = []
-
-        if (data.gasType === 'PROPANE' && parseInt(data.totalBtuInput) > 100000) {
-            warnings.push('High BTU propane installations require special safety considerations')
-        }
-
-        if (data.installationType === 'UNDERGROUND' && parseInt(data.gasLineLengthFeet) > 100) {
-            warnings.push('Long underground gas lines require additional inspection points')
-        }
-
-        if (data.workType === 'NEW_INSTALLATION' && parseInt(data.numberOfAppliances) > 5) {
-            warnings.push('Multiple appliance installations may require upgraded gas service')
-        }
-
-        if (parseInt(data.totalBtuInput) > 200000) {
-            warnings.push('Commercial-grade installation may require utility company coordination')
-        }
-
-        setSafetyWarnings(warnings)
-    }
-
-    const validateField = (field, value) => {
-        switch (field) {
-            case 'workType':
-                return !value ? 'Work type is required' : ''
-            case 'gasType':
-                return !value ? 'Gas type is required' : ''
-            case 'installationType':
-                return !value ? 'Installation type is required' : ''
-            case 'totalBtuInput':
-                if (!value) return 'Total BTU input is required'
-                const btu = parseInt(value)
-                if (isNaN(btu) || btu <= 0) return 'Please enter a valid BTU value'
-                if (btu > 1000000) return 'BTU input cannot exceed 1,000,000'
-                return ''
-            case 'gasLineLengthFeet':
-                if (!value) return 'Gas line length is required'
-                const length = parseInt(value)
-                if (isNaN(length) || length <= 0) return 'Please enter a valid length'
-                if (length > 500) return 'Gas line length cannot exceed 500 feet'
-                return ''
-            case 'numberOfAppliances':
-                if (!value) return 'Number of appliances is required'
-                const count = parseInt(value)
-                if (isNaN(count) || count <= 0) return 'Please enter a valid number of appliances'
-                if (count > 20) return 'Number of appliances cannot exceed 20'
-                return ''
-            case 'projectCost':
-                if (!value) return 'Project cost is required'
-                const cost = parseCurrency(value)
-                if (isNaN(cost) || cost <= 0) return 'Please enter a valid project cost'
-                return ''
-            case 'workDescription':
-                if (!value.trim()) return 'Work description is required'
-                if (value.trim().length < 10) return 'Please provide a detailed description'
-                return ''
-            case 'applianceDetails':
-                if (!value.trim()) return 'Appliance details are required'
-                return ''
-            default:
-                return ''
-        }
-    }
-
-    const updateField = (field, value) => {
-        // Format project cost
-        if (field === 'projectCost') {
-            value = formatCurrency(value)
-        }
-
-        // Format numeric fields
-        if (['totalBtuInput', 'gasLineLengthFeet', 'numberOfAppliances'].includes(field)) {
-            value = value.replace(/\D/g, '')
-        }
-
-        // Format gas line size
-        if (field === 'gasLineSizeInches') {
-            value = value.replace(/[^\d.]/g, '')
-        }
-
-        const newData = { ...formData, [field]: value }
-        setFormData(newData)
-        onChange(newData)
-
-        // Recalculate specifications when relevant fields change
-        if (['totalBtuInput', 'gasLineLengthFeet', 'gasType'].includes(field)) {
-            calculateGasSpecs(newData.totalBtuInput, newData.gasLineLengthFeet, newData.gasType)
-        }
-
-        // Update safety warnings
-        updateSafetyWarnings(newData)
-
-        // Validate if field has been touched
-        if (showValidation && touched[field]) {
-            const error = validateField(field, value)
-            setValidationErrors(prev => ({
-                ...prev,
-                [field]: error
-            }))
-        }
-    }
-
-    const handleBlur = (field) => {
-        setTouched(prev => ({ ...prev, [field]: true }))
-
-        if (showValidation) {
-            const error = validateField(field, formData[field])
-            setValidationErrors(prev => ({
-                ...prev,
-                [field]: error
-            }))
-        }
-    }
-
-    const getFieldError = (field) => {
-        return errors[field] || validationErrors[field]
-    }
+    const installationTypeOptions = [
+        { value: '', label: 'Select installation type' },
+        ...Object.entries(GAS_INSTALLATION_TYPE_LABELS).map(([value, label]) => ({
+            value,
+            label
+        }))
+    ]
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
-            {/* Gas Installation Details */}
-            <Card
-                title="Gas Installation Details"
-                subtitle="Specify the type of gas work and installation requirements"
-            >
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="text-center">
+                <div className="mx-auto w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mb-4">
+                    <Flame className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    Gas Permit Information
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Please provide details about your gas installation, modification, or repair work.
+                </p>
+            </div>
+
+            {/* Form Fields */}
+            <div className="max-w-2xl mx-auto space-y-6">
+                {/* Work Type and Gas Details */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        Gas Work Details
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Select
                             label="Work Type"
-                            value={formData.workType}
-                            onChange={(value) => updateField('workType', value)}
-                            options={GAS_WORK_TYPE}
-                            error={getFieldError('workType')}
                             required
-                            disabled={readOnly}
-                            placeholder="Select work type"
+                            value={getFieldValue('gasPermitInfo.workType')}
+                            onChange={(value) => updateField('gasPermitInfo.workType', value)}
+                            options={workTypeOptions}
+                            error={errors['gasPermitInfo.workType']}
+                            helperText="Type of gas work"
                         />
 
                         <Select
                             label="Gas Type"
-                            value={formData.gasType}
-                            onChange={(value) => updateField('gasType', value)}
-                            options={GAS_TYPE}
-                            error={getFieldError('gasType')}
                             required
-                            disabled={readOnly}
-                            placeholder="Select gas type"
-                        />
-
-                        <Select
-                            label="Installation Type"
-                            value={formData.installationType}
-                            onChange={(value) => updateField('installationType', value)}
-                            options={GAS_INSTALLATION_TYPE}
-                            error={getFieldError('installationType')}
-                            required
-                            disabled={readOnly}
-                            placeholder="Select installation type"
+                            value={getFieldValue('gasPermitInfo.gasType')}
+                            onChange={(value) => updateField('gasPermitInfo.gasType', value)}
+                            options={gasTypeOptions}
+                            error={errors['gasPermitInfo.gasType']}
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Work Description <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                            value={formData.workDescription}
-                            onChange={(e) => updateField('workDescription', e.target.value)}
-                            onBlur={() => handleBlur('workDescription')}
-                            className={`form-textarea ${getFieldError('workDescription') ? 'border-red-500' : ''}`}
-                            rows={3}
-                            placeholder="Describe the gas work to be performed..."
-                            readOnly={readOnly}
-                            maxLength={500}
-                        />
-                        <div className="flex justify-between mt-1">
-                            {getFieldError('workDescription') ? (
-                                <p className="text-sm text-red-600 dark:text-red-400">
-                                    {getFieldError('workDescription')}
-                                </p>
-                            ) : (
-                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                     Detailed description of gas installation work
-                                 </p>
-                             )}
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {formData.workDescription.length}/500
-                            </p>
-                        </div>
-                    </div>
+                    <Select
+                        label="Installation Type"
+                        required
+                        value={getFieldValue('gasPermitInfo.installationType')}
+                        onChange={(value) => updateField('gasPermitInfo.installationType', value)}
+                        options={installationTypeOptions}
+                        error={errors['gasPermitInfo.installationType']}
+                    />
                 </div>
-            </Card>
 
-            {/* Technical Specifications */}
-            <Card
-                title="Technical Specifications"
-                subtitle="Gas system requirements and calculations"
-            >
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Work Description */}
+                <div>
+                    <Textarea
+                        label="Work Description"
+                        required
+                        value={getFieldValue('gasPermitInfo.workDescription')}
+                        onChange={(e) => updateField('gasPermitInfo.workDescription', e.target.value)}
+                        error={errors['gasPermitInfo.workDescription']}
+                        placeholder="Describe the gas work to be performed in detail..."
+                        rows={4}
+                        helperText="Provide specific details about the gas installation or work"
+                    />
+                </div>
+
+                {/* Technical Specifications */}
+                <div className="space-y-4">
+                    <div className="flex items-center mb-4">
+                        <Settings className="h-5 w-5 text-gray-400 mr-2" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                            Technical Specifications
+                        </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
                             label="Total BTU Input"
                             type="number"
-                            value={formData.totalBtuInput}
-                            onChange={(e) => updateField('totalBtuInput', e.target.value)}
-                            onBlur={() => handleBlur('totalBtuInput')}
-                            error={getFieldError('totalBtuInput')}
-                            required
-                            readOnly={readOnly}
-                            placeholder="100000"
-                            min="1"
-                            max="1000000"
-                            startIcon={<Gauge className="w-4 h-4" />}
-                            helperText="Total BTU/hr for all appliances"
+                            value={getFieldValue('gasPermitInfo.totalBtuInput')}
+                            onChange={(e) => updateField('gasPermitInfo.totalBtuInput', e.target.value)}
+                            error={errors['gasPermitInfo.totalBtuInput']}
+                            placeholder="0"
+                            helperText="Total BTU rating of all appliances"
                         />
 
                         <Input
-                            label="Gas Line Length (ft)"
+                            label="Gas Line Length (feet)"
                             type="number"
-                            value={formData.gasLineLengthFeet}
-                            onChange={(e) => updateField('gasLineLengthFeet', e.target.value)}
-                            onBlur={() => handleBlur('gasLineLengthFeet')}
-                            error={getFieldError('gasLineLengthFeet')}
-                            required
-                            readOnly={readOnly}
-                            placeholder="50"
-                            min="1"
-                            max="500"
+                            value={getFieldValue('gasPermitInfo.gasLineLengthFeet')}
+                            onChange={(e) => updateField('gasPermitInfo.gasLineLengthFeet', e.target.value)}
+                            error={errors['gasPermitInfo.gasLineLengthFeet']}
+                            placeholder="0"
                             helperText="Total length of new gas line"
-                        />
-
-                        <Input
-                            label="Number of Appliances"
-                            type="number"
-                            value={formData.numberOfAppliances}
-                            onChange={(e) => updateField('numberOfAppliances', e.target.value)}
-                            onBlur={() => handleBlur('numberOfAppliances')}
-                            error={getFieldError('numberOfAppliances')}
-                            required
-                            readOnly={readOnly}
-                            placeholder="3"
-                            min="1"
-                            max="20"
-                            helperText="Total number of gas appliances"
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Gas Line Size (inches)"
+                            label="Number of Appliances"
                             type="number"
-                            value={formData.gasLineSizeInches}
-                            onChange={(e) => updateField('gasLineSizeInches', e.target.value)}
-                            readOnly={readOnly}
-                            placeholder="0.75"
-                            step="0.25"
-                            min="0.5"
-                            max="4"
-                            helperText="Proposed gas line diameter"
+                            value={getFieldValue('gasPermitInfo.numberOfAppliances')}
+                            onChange={(e) => updateField('gasPermitInfo.numberOfAppliances', e.target.value)}
+                            error={errors['gasPermitInfo.numberOfAppliances']}
+                            placeholder="0"
+                            helperText="Total appliances to be connected"
                         />
 
                         <Input
-                            label="Project Cost"
-                            value={formData.projectCost}
-                            onChange={(e) => updateField('projectCost', e.target.value)}
-                            onBlur={() => handleBlur('projectCost')}
-                            error={getFieldError('projectCost')}
-                            required
-                            readOnly={readOnly}
-                            placeholder="$5,000"
-                            startIcon={<DollarSign className="w-4 h-4" />}
-                            helperText="Total estimated project cost"
+                            label="Gas Line Size (inches)"
+                            type="number"
+                            step="0.125"
+                            value={getFieldValue('gasPermitInfo.gasLineSizeInches')}
+                            onChange={(e) => updateField('gasPermitInfo.gasLineSizeInches', e.target.value)}
+                            error={errors['gasPermitInfo.gasLineSizeInches']}
+                            placeholder="0.5"
+                            helperText="Diameter of gas line in inches"
                         />
                     </div>
 
-                    {/* Calculated Specifications */}
-                    {calculatedSpecs && (
-                        <div className="bg-blue-50 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                            <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-3 flex items-center">
-                                <Calculator className="w-4 h-4 mr-2" />
-                                Calculated Specifications
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                                <div>
-                                    <span className="text-blue-700 dark:text-blue-300">Recommended Size:</span>
-                                    <div className="font-medium">{calculatedSpecs.recommendedSize}" diameter</div>
-                                </div>
-                                <div>
-                                    <span className="text-blue-700 dark:text-blue-300">Pressure Drop:</span>
-                                    <div className="font-medium">{calculatedSpecs.pressureDrop}" WC</div>
-                                </div>
-                                <div>
-                                    <span className="text-blue-700 dark:text-blue-300">Max Capacity:</span>
-                                    <div className="font-medium">{calculatedSpecs.maxCapacity.toLocaleString()} BTU/hr</div>
-                                </div>
-                                <div>
-                                    <span className="text-blue-700 dark:text-blue-300">Regulator Required:</span>
-                                    <div className="font-medium">{calculatedSpecs.requiresRegulator ? 'Yes' : 'No'}</div>
-                                </div>
-                            </div>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                                *Calculations are estimates. Final sizing must be verified by licensed gas contractor
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </Card>
-
-            {/* Appliance Information */}
-            <Card
-                title="Appliance Information"
-                subtitle="Details about gas appliances to be installed or connected"
-            >
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Appliance Details <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                        value={formData.applianceDetails}
-                        onChange={(e) => updateField('applianceDetails', e.target.value)}
-                        onBlur={() => handleBlur('applianceDetails')}
-                        className={`form-textarea ${getFieldError('applianceDetails') ? 'border-red-500' : ''}`}
-                        rows={4}
-                        placeholder="List all gas appliances with BTU ratings, manufacturers, and model numbers..."
-                        readOnly={readOnly}
-                        maxLength={1000}
+                    <Input
+                        label="Project Cost"
+                        type="number"
+                        startIcon={<DollarSign className="h-4 w-4" />}
+                        value={getFieldValue('gasPermitInfo.projectCost')}
+                        onChange={(e) => updateField('gasPermitInfo.projectCost', e.target.value)}
+                        error={errors['gasPermitInfo.projectCost']}
+                        placeholder="0.00"
+                        helperText="Total estimated project cost"
                     />
-                    <div className="flex justify-between mt-1">
-                        {getFieldError('applianceDetails') ? (
-                            <p className="text-sm text-red-600 dark:text-red-400">
-                                {getFieldError('applianceDetails')}
+                </div>
+
+                {/* Appliance Details */}
+                <div>
+                    <Textarea
+                        label="Appliance Details"
+                        value={getFieldValue('gasPermitInfo.applianceDetails')}
+                        onChange={(e) => updateField('gasPermitInfo.applianceDetails', e.target.value)}
+                        error={errors['gasPermitInfo.applianceDetails']}
+                        placeholder="List all gas appliances with make, model, and BTU ratings..."
+                        rows={3}
+                        helperText="Describe each appliance to be installed or connected"
+                    />
+                </div>
+
+                {/* System Requirements */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        System Requirements
+                    </h3>
+
+                    <div className="space-y-3">
+                        <div>
+                            <label className="flex items-center space-x-3">
+                                <input
+                                    type="checkbox"
+                                    checked={getFieldValue('gasPermitInfo.requiresMeterUpgrade')}
+                                    onChange={(e) => updateField('gasPermitInfo.requiresMeterUpgrade', e.target.checked)}
+                                    className="form-checkbox h-4 w-4 text-orange-600 transition duration-150 ease-in-out"
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white">
+                  Requires meter upgrade?
+                </span>
+                            </label>
+                            <p className="ml-7 text-xs text-gray-500 dark:text-gray-400">
+                                Check if existing gas meter needs to be upgraded
                             </p>
-                        ) : (
-                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                 Include make, model, and BTU rating for each appliance
-                             </p>
-                         )}
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {formData.applianceDetails.length}/1000
-                        </p>
-                    </div>
-                </div>
-            </Card>
-
-            {/* Safety Requirements */}
-            <Card
-                title="Safety Requirements"
-                subtitle="Gas safety and utility requirements"
-            >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id="requiresMeterUpgrade"
-                                checked={formData.requiresMeterUpgrade}
-                                onChange={(e) => updateField('requiresMeterUpgrade', e.target.checked)}
-                                disabled={readOnly}
-                                className="form-checkbox"
-                            />
-                            <label htmlFor="requiresMeterUpgrade" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Requires Meter Upgrade
-                            </label>
                         </div>
 
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id="requiresRegulator"
-                                checked={formData.requiresRegulator}
-                                onChange={(e) => updateField('requiresRegulator', e.target.checked)}
-                                disabled={readOnly}
-                                className="form-checkbox"
-                            />
-                            <label htmlFor="requiresRegulator" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Requires Pressure Regulator
+                        <div>
+                            <label className="flex items-center space-x-3">
+                                <input
+                                    type="checkbox"
+                                    checked={getFieldValue('gasPermitInfo.requiresRegulator')}
+                                    onChange={(e) => updateField('gasPermitInfo.requiresRegulator', e.target.checked)}
+                                    className="form-checkbox h-4 w-4 text-orange-600 transition duration-150 ease-in-out"
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white">
+                  Requires pressure regulator?
+                </span>
                             </label>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id="requiresPressureTest"
-                                checked={formData.requiresPressureTest}
-                                onChange={(e) => updateField('requiresPressureTest', e.target.checked)}
-                                disabled={readOnly}
-                                className="form-checkbox"
-                            />
-                            <label htmlFor="requiresPressureTest" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Requires Pressure Test
-                            </label>
-                        </div>
-
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id="emergencyShutoffRequired"
-                                checked={formData.emergencyShutoffRequired}
-                                onChange={(e) => updateField('emergencyShutoffRequired', e.target.checked)}
-                                disabled={readOnly}
-                                className="form-checkbox"
-                            />
-                            <label htmlFor="emergencyShutoffRequired" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Emergency Shutoff Required
-                            </label>
+                            <p className="ml-7 text-xs text-gray-500 dark:text-gray-400">
+                                Check if pressure regulator installation is needed
+                            </p>
                         </div>
                     </div>
                 </div>
-            </Card>
 
-            {/* Safety Warnings */}
-            {safetyWarnings.length > 0 && (
-                <div className="bg-yellow-50 dark:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-700 rounded-md p-4">
-                    <div className="flex items-start">
-                        <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                        <div className="ml-3">
-                            <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                                Safety Considerations
+                {/* Safety Notice */}
+                <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                    <div className="flex items-start space-x-3">
+                        <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                            <h4 className="text-sm font-medium text-red-900 dark:text-red-200">
+                                Gas Safety Requirements
                             </h4>
-                            <ul className="mt-2 text-sm text-yellow-700 dark:text-yellow-300 list-disc list-inside">
-                                {safetyWarnings.map((warning, index) => (
-                                    <li key={index}>{warning}</li>
-                                ))}
+                            <ul className="text-sm text-red-800 dark:text-red-300 mt-2 space-y-1">
+                                <li>• All gas work must be performed by a licensed gas contractor</li>
+                                <li>• Pressure testing is required for all new gas installations</li>
+                                <li>• Gas appliances must be properly vented and meet current codes</li>
+                                <li>• Emergency shutoff valves must be accessible and properly labeled</li>
+                                <li>• Final inspection is mandatory before gas service activation</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-            )}
 
-            {/* Form Validation Summary */}
-            {showValidation && Object.keys(validationErrors).some(key => validationErrors[key]) && (
-                <div className="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-md p-4">
-                    <div className="flex items-start">
-                        <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                                Please fix the following errors:
-                            </h3>
-                            <ul className="mt-2 text-sm text-red-700 dark:text-red-300 list-disc list-inside">
-                                {Object.entries(validationErrors)
-                                    .filter(([_, error]) => error)
-                                    .map(([field, error]) => (
-                                        <li key={field}>{error}</li>
-                                    ))
-                                }
-                            </ul>
-                        </div>
-                    </div>
+                {/* Additional Information */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
+                        Gas Permit Information
+                    </h4>
+                    <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                        <li>• BTU calculations determine required gas line sizing</li>
+                        <li>• Utility company coordination may be required for new service</li>
+                        <li>• Commercial installations have additional safety requirements</li>
+                        <li>• Provide accurate appliance specifications for proper sizing</li>
+                    </ul>
                 </div>
-            )}
-
-            {/* Success Indicator */}
-            {showValidation &&
-             formData.workType &&
-             formData.gasType &&
-             formData.installationType &&
-             formData.totalBtuInput &&
-             formData.gasLineLengthFeet &&
-             formData.numberOfAppliances &&
-             formData.projectCost &&
-             formData.workDescription &&
-             formData.applianceDetails &&
-             !Object.keys(validationErrors).some(key => validationErrors[key]) && (
-                 <div className="bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-700 rounded-md p-4">
-                     <div className="flex items-center">
-                         <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-                         <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                             Gas permit information is complete and valid
-                         </p>
-                     </div>
-                 </div>
-             )}
+            </div>
         </div>
     )
 }
