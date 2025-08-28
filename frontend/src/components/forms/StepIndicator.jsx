@@ -1,201 +1,150 @@
 import React from 'react'
 import { Check } from 'lucide-react'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 const StepIndicator = ({
-                           steps,
-                           currentStep,
-                           completedSteps,
+                           steps = [],
+                           currentStep = 0,
+                           completedSteps = [],
                            onStepClick,
-                           isStepAccessible,
-                           orientation = 'horizontal'
+                           isStepAccessible
                        }) => {
-
-    // Get step status
     const getStepStatus = (stepIndex) => {
-        if (completedSteps.has(stepIndex)) {
-            return 'completed'
-        } else if (stepIndex === currentStep) {
-            return 'current'
-        } else if (isStepAccessible(stepIndex)) {
-            return 'accessible'
-        } else {
-            return 'upcoming'
+        if (completedSteps.includes(stepIndex)) return 'completed'
+        if (stepIndex === currentStep) return 'current'
+        if (isStepAccessible && isStepAccessible(stepIndex)) return 'accessible'
+        return 'upcoming'
+    }
+
+    const getStepClasses = (status) => {
+        const baseClasses = 'flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200'
+
+        switch (status) {
+            case 'completed':
+                return clsx(baseClasses, 'bg-green-600 border-green-600 text-white')
+            case 'current':
+                return clsx(baseClasses, 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-900')
+            case 'accessible':
+                return clsx(baseClasses, 'border-gray-300 bg-white text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:border-gray-400 hover:text-gray-600 cursor-pointer')
+            case 'upcoming':
+            default:
+                return clsx(baseClasses, 'border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500')
         }
     }
 
-    // Handle step click
+    const getConnectorClasses = (stepIndex) => {
+        const isCompleted = completedSteps.includes(stepIndex) || completedSteps.includes(stepIndex + 1) || stepIndex < currentStep
+        return clsx(
+            'flex-1 h-0.5 mx-4',
+            isCompleted ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+        )
+    }
+
     const handleStepClick = (stepIndex) => {
-        if (isStepAccessible(stepIndex) && onStepClick) {
+        const status = getStepStatus(stepIndex)
+        if ((status === 'accessible' || status === 'completed') && onStepClick) {
             onStepClick(stepIndex)
         }
     }
 
-    // Render horizontal indicator (default)
-    const renderHorizontalIndicator = () => (
-        <nav aria-label="Progress">
-            <ol className="flex items-center justify-between space-x-2 md:space-x-8">
-                {steps.map((step, stepIndex) => {
-                    const status = getStepStatus(stepIndex)
+    return (
+        <div className="w-full">
+            {/* Desktop Step Indicator */}
+            <div className="hidden sm:flex items-center justify-between">
+                {steps.map((step, index) => {
                     const Icon = step.icon
-                    const isClickable = isStepAccessible(stepIndex)
+                    const status = getStepStatus(index)
+                    const isClickable = status === 'accessible' || status === 'completed'
 
                     return (
-                        <li key={step.id} className="flex items-center">
-                            {/* Step Button */}
-                            <button
-                                type="button"
-                                onClick={() => handleStepClick(stepIndex)}
-                                disabled={!isClickable}
-                                className={clsx(
-                                    'relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200',
-                                    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-                                    status === 'completed' && [
-                                            'bg-green-600 border-green-600 text-white',
-                                            isClickable && 'hover:bg-green-700'
-                                        ],
-                                    status === 'current' && [
-                                            'bg-blue-600 border-blue-600 text-white',
-                                            'ring-4 ring-blue-100 dark:ring-blue-900'
-                                        ],
-                                    status === 'accessible' && [
-                                            'border-gray-300 bg-white text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300',
-                                            'hover:border-gray-400 hover:text-gray-600 dark:hover:border-gray-500 dark:hover:text-gray-200'
-                                        ],
-                                    status === 'upcoming' && [
-                                            'border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500',
-                                            'cursor-not-allowed'
-                                        ]
-                                )}
-                                aria-current={status === 'current' ? 'step' : undefined}
-                            >
-                                {status === 'completed' ? (
-                                    <Check className="h-5 w-5" />
-                                ) : (
-                                     <Icon className="h-5 w-5" />
-                                 )}
+                        <React.Fragment key={step.id}>
+                            <div className="flex flex-col items-center">
+                                {/* Step Circle */}
+                                <div
+                                    className={getStepClasses(status)}
+                                    onClick={() => handleStepClick(index)}
+                                    role={isClickable ? 'button' : undefined}
+                                    tabIndex={isClickable ? 0 : undefined}
+                                    onKeyDown={(e) => {
+                                        if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+                                            e.preventDefault()
+                                            handleStepClick(index)
+                                        }
+                                    }}
+                                >
+                                    {status === 'completed' ? (
+                                        <Check className="h-5 w-5" />
+                                    ) : (
+                                         <Icon className="h-5 w-5" />
+                                     )}
+                                </div>
 
-                                {/* Step number overlay for upcoming steps */}
-                                {status === 'upcoming' && (
-                                    <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-xs font-medium">
-                    {stepIndex + 1}
-                  </span>
-                                )}
-                            </button>
-
-                            {/* Step Info (Hidden on mobile) */}
-                            <div className="ml-3 hidden md:block">
-                                <p className={clsx(
-                                    'text-sm font-medium',
-                                    status === 'completed' && 'text-green-600 dark:text-green-400',
-                                    status === 'current' && 'text-blue-600 dark:text-blue-400',
-                                    status === 'accessible' && 'text-gray-500 dark:text-gray-300',
-                                    status === 'upcoming' && 'text-gray-400 dark:text-gray-500'
-                                )}>
-                                    {step.title}
+                                {/* Step Label */}
+                                <div className="mt-3 text-center max-w-24">
+                                    <p className={clsx(
+                                        'text-sm font-medium',
+                                        status === 'current' ? 'text-blue-600 dark:text-blue-400' :
+                                        status === 'completed' ? 'text-green-600 dark:text-green-400' :
+                                        'text-gray-500 dark:text-gray-400'
+                                    )}>
+                                        {step.title}
+                                    </p>
                                     {step.optional && (
-                                        <span className="ml-1 text-xs text-gray-400">(Optional)</span>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                            (Optional)
+                                        </p>
                                     )}
-                                </p>
-                                <p className="text-xs text-gray-400 dark:text-gray-500">
-                                    {step.description}
-                                </p>
+                                </div>
                             </div>
 
-                            {/* Connector line */}
-                            {stepIndex < steps.length - 1 && (
-                                <div className={clsx(
-                                    'hidden md:block w-8 h-0.5 ml-8',
-                                    completedSteps.has(stepIndex) || stepIndex < currentStep
-                                    ? 'bg-green-600'
-                                    : 'bg-gray-300 dark:bg-gray-600'
-                                )} />
+                            {/* Connector Line */}
+                            {index < steps.length - 1 && (
+                                <div className={getConnectorClasses(index)} />
                             )}
-                        </li>
+                        </React.Fragment>
                     )
                 })}
-            </ol>
-        </nav>
-    )
+            </div>
 
-    // Render vertical indicator
-    const renderVerticalIndicator = () => (
-        <nav aria-label="Progress" className="flex flex-col space-y-4">
-            {steps.map((step, stepIndex) => {
-                const status = getStepStatus(stepIndex)
-                const Icon = step.icon
-                const isClickable = isStepAccessible(stepIndex)
-
-                return (
-                    <div key={step.id} className="relative flex items-start">
-                        {/* Connector line */}
-                        {stepIndex < steps.length - 1 && (
-                            <div className={clsx(
-                                'absolute left-5 top-10 w-0.5 h-8',
-                                completedSteps.has(stepIndex) || stepIndex < currentStep
-                                ? 'bg-green-600'
-                                : 'bg-gray-300 dark:bg-gray-600'
-                            )} />
-                        )}
-
-                        {/* Step Button */}
-                        <button
-                            type="button"
-                            onClick={() => handleStepClick(stepIndex)}
-                            disabled={!isClickable}
-                            className={clsx(
-                                'relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 flex-shrink-0',
-                                'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-                                status === 'completed' && [
-                                        'bg-green-600 border-green-600 text-white',
-                                        isClickable && 'hover:bg-green-700'
-                                    ],
-                                status === 'current' && [
-                                        'bg-blue-600 border-blue-600 text-white',
-                                        'ring-4 ring-blue-100 dark:ring-blue-900'
-                                    ],
-                                status === 'accessible' && [
-                                        'border-gray-300 bg-white text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300',
-                                        'hover:border-gray-400 hover:text-gray-600 dark:hover:border-gray-500'
-                                    ],
-                                status === 'upcoming' && [
-                                        'border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500',
-                                        'cursor-not-allowed'
-                                    ]
-                            )}
-                        >
-                            {status === 'completed' ? (
-                                <Check className="h-5 w-5" />
-                            ) : (
-                                 <Icon className="h-5 w-5" />
-                             )}
-                        </button>
-
-                        {/* Step Info */}
-                        <div className="ml-4 flex-1">
-                            <p className={clsx(
-                                'text-sm font-medium',
-                                status === 'completed' && 'text-green-600 dark:text-green-400',
-                                status === 'current' && 'text-blue-600 dark:text-blue-400',
-                                status === 'accessible' && 'text-gray-700 dark:text-gray-300',
-                                status === 'upcoming' && 'text-gray-400 dark:text-gray-500'
-                            )}>
-                                {step.title}
-                                {step.optional && (
-                                    <span className="ml-1 text-xs text-gray-400">(Optional)</span>
-                                )}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {step.description}
-                            </p>
-                        </div>
+            {/* Mobile Step Indicator */}
+            <div className="sm:hidden">
+                {/* Current Step Info */}
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            Step {currentStep + 1} of {steps.length}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {steps[currentStep]?.title}
+                        </p>
                     </div>
-                )
-            })}
-        </nav>
-    )
+                    <div className="flex items-center space-x-1">
+                        {steps.map((_, index) => (
+                            <div
+                                key={index}
+                                className={clsx(
+                                    'w-2 h-2 rounded-full',
+                                    getStepStatus(index) === 'completed' ? 'bg-green-600' :
+                                    index === currentStep ? 'bg-blue-600' :
+                                    'bg-gray-300 dark:bg-gray-600'
+                                )}
+                            />
+                        ))}
+                    </div>
+                </div>
 
-    return orientation === 'horizontal' ? renderHorizontalIndicator() : renderVerticalIndicator()
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
+                        style={{
+                            width: `${((currentStep + 1) / steps.length) * 100}%`
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default StepIndicator
