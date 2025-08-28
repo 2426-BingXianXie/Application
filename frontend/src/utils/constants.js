@@ -16,6 +16,7 @@ export const ROUTES = {
     HOME: '/',
     DASHBOARD: '/dashboard',
     APPLY: '/apply',
+    MY_PERMITS: '/my-permits',
     BUILDING_PERMITS: '/building-permits',
     GAS_PERMITS: '/gas-permits',
     PERMITS: '/permits',
@@ -23,8 +24,10 @@ export const ROUTES = {
     PROFILE: '/profile',
     SETTINGS: '/settings',
     REPORTS: '/reports',
+    USERS: '/users',
     LOGIN: '/login',
     REGISTER: '/register',
+    UNAUTHORIZED: '/unauthorized',
     HELP: '/help',
     CONTACT: '/contact',
     TERMS: '/terms',
@@ -51,6 +54,66 @@ export const PERMIT_STATUS_LABELS = {
     REJECTED: 'Rejected',
     EXPIRED: 'Expired',
     CANCELLED: 'Cancelled'
+}
+
+// Permit status colors for UI theming
+export const PERMIT_STATUS_COLORS = {
+    DRAFT: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-800',
+        border: 'border-gray-300',
+        darkBg: 'dark:bg-gray-800',
+        darkText: 'dark:text-gray-200',
+        darkBorder: 'dark:border-gray-600'
+    },
+    SUBMITTED: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-800',
+        border: 'border-blue-300',
+        darkBg: 'dark:bg-blue-900',
+        darkText: 'dark:text-blue-200',
+        darkBorder: 'dark:border-blue-700'
+    },
+    UNDER_REVIEW: {
+        bg: 'bg-amber-100',
+        text: 'text-amber-800',
+        border: 'border-amber-300',
+        darkBg: 'dark:bg-amber-900',
+        darkText: 'dark:text-amber-200',
+        darkBorder: 'dark:border-amber-700'
+    },
+    APPROVED: {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        border: 'border-green-300',
+        darkBg: 'dark:bg-green-900',
+        darkText: 'dark:text-green-200',
+        darkBorder: 'dark:border-green-700'
+    },
+    REJECTED: {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        border: 'border-red-300',
+        darkBg: 'dark:bg-red-900',
+        darkText: 'dark:text-red-200',
+        darkBorder: 'dark:border-red-700'
+    },
+    EXPIRED: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
+        border: 'border-gray-300',
+        darkBg: 'dark:bg-gray-800',
+        darkText: 'dark:text-gray-400',
+        darkBorder: 'dark:border-gray-600'
+    },
+    CANCELLED: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
+        border: 'border-gray-300',
+        darkBg: 'dark:bg-gray-800',
+        darkText: 'dark:text-gray-400',
+        darkBorder: 'dark:border-gray-600'
+    }
 }
 
 // Applicant types
@@ -130,6 +193,23 @@ export const ZONING_CLASSIFICATION_LABELS = {
     AGRICULTURAL: 'Agricultural',
     INSTITUTIONAL: 'Institutional'
 }
+
+// Zoning classifications with detailed options
+export const ZONING_CLASSIFICATIONS = [
+    { value: 'R1', label: 'R1 - Single Family Residential', description: 'Single family residential low density' },
+    { value: 'R2', label: 'R2 - Single Family Residential', description: 'Single family residential medium density' },
+    { value: 'R3', label: 'R3 - Multi-Family Residential', description: 'Multi-family residential' },
+    { value: 'R4', label: 'R4 - High Density Residential', description: 'High density residential' },
+    { value: 'C1', label: 'C1 - Neighborhood Commercial', description: 'Local commercial services' },
+    { value: 'C2', label: 'C2 - General Commercial', description: 'General commercial and retail' },
+    { value: 'C3', label: 'C3 - Central Business', description: 'Central business district' },
+    { value: 'I1', label: 'I1 - Light Industrial', description: 'Light industrial and manufacturing' },
+    { value: 'I2', label: 'I2 - Heavy Industrial', description: 'Heavy industrial and manufacturing' },
+    { value: 'M1', label: 'M1 - Mixed Use', description: 'Mixed use development' },
+    { value: 'AG', label: 'AG - Agricultural', description: 'Agricultural and farming' },
+    { value: 'OS', label: 'OS - Open Space', description: 'Parks and open space' },
+    { value: 'PUD', label: 'PUD - Planned Unit Development', description: 'Planned development' }
+]
 
 // Building Permit Types (enhanced list)
 export const BUILDING_PERMIT_TYPE = {
@@ -337,22 +417,6 @@ export const NOTIFICATION_TYPE = {
     INFO: 'INFO'
 }
 
-// User roles
-export const USER_ROLE = {
-    ADMIN: 'ADMIN',
-    REVIEWER: 'REVIEWER',
-    APPLICANT: 'APPLICANT',
-    CONTRACTOR: 'CONTRACTOR'
-}
-
-// User role labels
-export const USER_ROLE_LABELS = {
-    ADMIN: 'Administrator',
-    REVIEWER: 'Permit Reviewer',
-    APPLICANT: 'Applicant',
-    CONTRACTOR: 'Contractor'
-}
-
 // Form validation patterns
 export const VALIDATION_PATTERNS = {
     EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -415,79 +479,113 @@ export const US_STATES = [
     { value: 'WY', label: 'Wyoming' }
 ]
 
-// Zoning classifications with detailed options
-export const ZONING_CLASSIFICATIONS = [
-    { value: 'R1', label: 'R1 - Single Family Residential', description: 'Single family residential low density' },
-    { value: 'R2', label: 'R2 - Single Family Residential', description: 'Single family residential medium density' },
-    { value: 'R3', label: 'R3 - Multi-Family Residential', description: 'Multi-family residential' },
-    { value: 'R4', label: 'R4 - High Density Residential', description: 'High density residential' },
-    { value: 'C1', label: 'C1 - Neighborhood Commercial', description: 'Local commercial services' },
-    { value: 'C2', label: 'C2 - General Commercial', description: 'General commercial and retail' },
-    { value: 'C3', label: 'C3 - Central Business', description: 'Central business district' },
-    { value: 'I1', label: 'I1 - Light Industrial', description: 'Light industrial and manufacturing' },
-    { value: 'I2', label: 'I2 - Heavy Industrial', description: 'Heavy industrial and manufacturing' },
-    { value: 'M1', label: 'M1 - Mixed Use', description: 'Mixed use development' },
-    { value: 'AG', label: 'AG - Agricultural', description: 'Agricultural and farming' },
-    { value: 'OS', label: 'OS - Open Space', description: 'Parks and open space' },
-    { value: 'PUD', label: 'PUD - Planned Unit Development', description: 'Planned development' }
-]
+// ==================== USER ROLES AND PERMISSIONS ====================
 
-// Permit status colors for UI theming
-export const PERMIT_STATUS_COLORS = {
-    DRAFT: {
-        bg: 'bg-gray-100',
-        text: 'text-gray-800',
-        border: 'border-gray-300',
-        darkBg: 'dark:bg-gray-800',
-        darkText: 'dark:text-gray-200',
-        darkBorder: 'dark:border-gray-600'
-    },
-    SUBMITTED: {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
-        border: 'border-blue-300',
-        darkBg: 'dark:bg-blue-900',
-        darkText: 'dark:text-blue-200',
-        darkBorder: 'dark:border-blue-700'
-    },
-    UNDER_REVIEW: {
-        bg: 'bg-amber-100',
-        text: 'text-amber-800',
-        border: 'border-amber-300',
-        darkBg: 'dark:bg-amber-900',
-        darkText: 'dark:text-amber-200',
-        darkBorder: 'dark:border-amber-700'
-    },
-    APPROVED: {
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-        border: 'border-green-300',
-        darkBg: 'dark:bg-green-900',
-        darkText: 'dark:text-green-200',
-        darkBorder: 'dark:border-green-700'
-    },
-    REJECTED: {
-        bg: 'bg-red-100',
-        text: 'text-red-800',
-        border: 'border-red-300',
-        darkBg: 'dark:bg-red-900',
-        darkText: 'dark:text-red-200',
-        darkBorder: 'dark:border-red-700'
-    },
-    EXPIRED: {
-        bg: 'bg-gray-100',
-        text: 'text-gray-600',
-        border: 'border-gray-300',
-        darkBg: 'dark:bg-gray-800',
-        darkText: 'dark:text-gray-400',
-        darkBorder: 'dark:border-gray-600'
-    },
-    CANCELLED: {
-        bg: 'bg-gray-100',
-        text: 'text-gray-600',
-        border: 'border-gray-300',
-        darkBg: 'dark:bg-gray-800',
-        darkText: 'dark:text-gray-400',
-        darkBorder: 'dark:border-gray-600'
-    }
+// User roles (combined both naming conventions)
+export const USER_ROLE = {
+    ADMIN: 'ADMIN',
+    REVIEWER: 'REVIEWER',
+    APPLICANT: 'APPLICANT',
+    CONTRACTOR: 'CONTRACTOR'
 }
+
+// Alias for compatibility
+export const USER_ROLES = USER_ROLE
+
+// User role labels
+export const USER_ROLE_LABELS = {
+    ADMIN: 'Administrator',
+    REVIEWER: 'Permit Reviewer',
+    APPLICANT: 'Applicant',
+    CONTRACTOR: 'Contractor'
+}
+
+// User role descriptions
+export const USER_ROLE_DESCRIPTIONS = {
+    ADMIN: 'Full system access - can manage all permits, users, and system settings',
+    APPLICANT: 'Can submit permit applications and view own permits only',
+    CONTRACTOR: 'Can submit permits for clients and manage contractor information',
+    REVIEWER: 'Can review and approve/reject permits but cannot manage users'
+}
+
+// Permissions by Role
+export const ROLE_PERMISSIONS = {
+    ADMIN: [
+        'read:dashboard',
+        'create:permit',
+        'read:building_permits',
+        'read:gas_permits',
+        'read:permits',
+        'read:reports',
+        'read:activity',
+        'approve:permits',
+        'VIEW_ALL_PERMITS',
+        'EDIT_ALL_PERMITS',
+        'DELETE_PERMITS',
+        'APPROVE_PERMITS',
+        'REJECT_PERMITS',
+        'MANAGE_USERS',
+        'VIEW_REPORTS',
+        'SYSTEM_SETTINGS',
+        'BULK_OPERATIONS',
+        'VIEW_AUDIT_LOG'
+    ],
+
+    APPLICANT: [
+        'read:dashboard',
+        'create:permit',
+        'VIEW_OWN_PERMITS',
+        'CREATE_PERMITS',
+        'EDIT_OWN_DRAFT_PERMITS',
+        'SUBMIT_PERMITS',
+        'VIEW_PERMIT_STATUS',
+        'UPLOAD_DOCUMENTS',
+        'VIEW_OWN_DOCUMENTS'
+    ],
+
+    CONTRACTOR: [
+        'read:dashboard',
+        'create:permit',
+        'VIEW_OWN_PERMITS',
+        'CREATE_PERMITS',
+        'EDIT_OWN_DRAFT_PERMITS',
+        'SUBMIT_PERMITS',
+        'VIEW_PERMIT_STATUS',
+        'UPLOAD_DOCUMENTS',
+        'VIEW_OWN_DOCUMENTS',
+        'MANAGE_CONTRACTOR_INFO',
+        'VIEW_CLIENT_PERMITS'
+    ],
+
+    REVIEWER: [
+        'read:dashboard',
+        'read:building_permits',
+        'read:gas_permits',
+        'read:permits',
+        'read:reports',
+        'read:activity',
+        'approve:permits',
+        'VIEW_ALL_PERMITS',
+        'APPROVE_PERMITS',
+        'REJECT_PERMITS',
+        'ADD_PERMIT_COMMENTS',
+        'VIEW_PERMIT_DOCUMENTS',
+        'REQUEST_ADDITIONAL_INFO'
+    ]
+}
+
+// Default admin account info
+export const DEFAULT_ADMIN = {
+    email: 'admin@municipality.gov',
+    firstName: 'System',
+    lastName: 'Administrator',
+    role: USER_ROLE.ADMIN,
+    defaultPassword: 'Admin123!',
+    mustChangePassword: true
+}
+
+// Registration allowed roles (only these can be selected during registration)
+export const REGISTRATION_ALLOWED_ROLES = [
+    USER_ROLE.APPLICANT,
+    USER_ROLE.CONTRACTOR
+]

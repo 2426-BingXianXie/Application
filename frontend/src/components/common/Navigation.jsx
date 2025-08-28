@@ -12,15 +12,30 @@ import {
     Plus,
     Search,
     Clock,
-    CheckCircle2
+    CheckCircle2,
+    Users,
+    Shield,
+    LogOut
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { USER_ROLE_LABELS } from '../../utils/constants'
 
 const Navigation = ({ onNavigate }) => {
     const location = useLocation()
-    const { user, hasPermission } = useAuth()
+    const {
+        user,
+        userRole,
+        hasPermission,
+        hasRole,
+        isAdmin,
+        canViewAllPermits,
+        canManageUsers,
+        logout,
+        getFullName,
+        getInitials
+    } = useAuth()
 
-    // Navigation items configuration
+    // Navigation items configuration with role-based permissions
     const navigationItems = [
         {
             name: 'Dashboard',
@@ -36,6 +51,22 @@ const Navigation = ({ onNavigate }) => {
             description: 'Start new permit application',
             permissions: ['create:permit'],
             highlight: true
+        },
+        {
+            name: 'My Permits',
+            href: '/my-permits',
+            icon: FileText,
+            description: 'View and manage your permits',
+            permissions: ['VIEW_OWN_PERMITS'],
+            roles: ['APPLICANT', 'CONTRACTOR']
+        },
+        {
+            name: 'All Permits',
+            href: '/permits',
+            icon: FileText,
+            description: 'View all permit applications',
+            permissions: ['VIEW_ALL_PERMITS'],
+            roles: ['ADMIN', 'REVIEWER']
         },
         {
             name: 'Building Permits',
@@ -66,7 +97,7 @@ const Navigation = ({ onNavigate }) => {
             href: '/search',
             icon: Search,
             description: 'Find permits by various criteria',
-            permissions: ['read:permits']
+            permissions: ['VIEW_ALL_PERMITS']
         },
         {
             name: 'Recent Activity',
@@ -81,7 +112,19 @@ const Navigation = ({ onNavigate }) => {
             icon: CheckCircle2,
             description: 'Permits pending your approval',
             permissions: ['approve:permits'],
-            badge: 'approval_count'
+            badge: 'approval_count',
+            roles: ['ADMIN', 'REVIEWER']
+        }
+    ]
+
+    const adminItems = [
+        {
+            name: 'User Management',
+            href: '/users',
+            icon: Users,
+            description: 'Manage user accounts and permissions',
+            permissions: ['MANAGE_USERS'],
+            roles: ['ADMIN']
         }
     ]
 
@@ -108,10 +151,25 @@ const Navigation = ({ onNavigate }) => {
 
     // Check if user has permission for navigation item
     const hasNavigationPermission = (item) => {
-        if (!item.permissions || item.permissions.length === 0) {
-            return true // No permissions required
+        // No restrictions - always show
+        if (!item.permissions && !item.roles) {
+            return true
         }
-        return item.permissions.some(permission => hasPermission(permission))
+
+        // Check role restrictions first
+        if (item.roles && item.roles.length > 0) {
+            const hasRequiredRole = hasRole ? hasRole(item.roles) : item.roles.includes(userRole)
+            if (!hasRequiredRole) {
+                return false
+            }
+        }
+
+        // Check permission restrictions
+        if (item.permissions && item.permissions.length > 0) {
+            return item.permissions.some(permission => hasPermission(permission))
+        }
+
+        return true
     }
 
     // Check if current path matches navigation item
@@ -125,29 +183,40 @@ const Navigation = ({ onNavigate }) => {
     // Get badge content for navigation item
     const getBadgeContent = (badgeType) => {
         // This would typically come from a global state or API
-        // For now, return placeholder values
+        // For now, return placeholder values based on user role
         switch (badgeType) {
             case 'approval_count':
-                return '3' // Would be dynamic
+                return hasPermission('approve:permits') ? '3' : null
             default:
                 return null
         }
     }
 
-    // Render navigation section
-    const renderNavigationSection = (items, title = null) => (
-        <div className="space-y-1">
-            {title && (
-                <div className="px-3 py-2">
-                    <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {title}
-                    </h3>
-                </div>
-            )}
+    // Handle logout
+    const handleLogout = async () => {
+        if (onNavigate) onNavigate() // Close mobile menu
+        await logout()
+    }
 
-            {items
-                .filter(hasNavigationPermission)
-                .map((item) => {
+    // Render navigation section
+    const renderNavigationSection = (items, title = null) => {
+        const filteredItems = items.filter(hasNavigationPermission)
+
+        if (filteredItems.length === 0) {
+            return null
+        }
+
+        return (
+            <div className="space-y-1">
+                {title && (
+                    <div className="px-3 py-2">
+                        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {title}
+                        </h3>
+                    </div>
+                )}
+
+                {filteredItems.map((item) => {
                     const Icon = item.icon
                     const active = isActive(item.href)
                     const badgeContent = item.badge ? getBadgeContent(item.badge) : null
@@ -158,33 +227,33 @@ const Navigation = ({ onNavigate }) => {
                             to={item.href}
                             onClick={onNavigate}
                             className={`
-                group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors relative
-                ${active
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                                group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors relative
+                                ${active
+                                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                             }
-                ${item.highlight && !active
-                  ? 'ring-2 ring-blue-200 dark:ring-blue-800'
-                  : ''
+                                ${item.highlight && !active
+                                  ? 'ring-2 ring-blue-200 dark:ring-blue-800'
+                                  : ''
                             }
-              `}
+                            `}
                             title={item.description}
                         >
                             <Icon className={`
-                mr-3 flex-shrink-0 h-5 w-5 transition-colors
-                ${active
-                  ? 'text-blue-500 dark:text-blue-400'
-                  : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
+                                mr-3 flex-shrink-0 h-5 w-5 transition-colors
+                                ${active
+                                  ? 'text-blue-500 dark:text-blue-400'
+                                  : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
                             }
-              `} />
+                            `} />
 
                             <span className="flex-1">{item.name}</span>
 
                             {/* Badge */}
                             {badgeContent && (
                                 <span className="ml-3 inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                  {badgeContent}
-                </span>
+                                    {badgeContent}
+                                </span>
                             )}
 
                             {/* Active indicator */}
@@ -194,8 +263,9 @@ const Navigation = ({ onNavigate }) => {
                         </Link>
                     )
                 })}
-        </div>
-    )
+            </div>
+        )
+    }
 
     return (
         <nav className="flex-1 px-2 py-4 space-y-8 overflow-y-auto">
@@ -204,18 +274,23 @@ const Navigation = ({ onNavigate }) => {
                 <div className="px-3 py-2">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {user.firstName?.[0]}{user.lastName?.[0]}
-                </span>
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                <span className="text-white text-sm font-medium">
+                                    {getInitials ? getInitials() : `${user.firstName?.[0] || 'U'}${user.lastName?.[0] || 'U'}`}
+                                </span>
                             </div>
                         </div>
                         <div className="ml-3 min-w-0 flex-1">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                {user.firstName} {user.lastName}
-                            </p>
+                            <div className="flex items-center">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {getFullName ? getFullName() : `${user.firstName} ${user.lastName}`}
+                                </p>
+                                {isAdmin && isAdmin() && (
+                                    <Shield className="h-4 w-4 ml-2 text-amber-500" title="Administrator" />
+                                )}
+                            </div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {user.email}
+                                {USER_ROLE_LABELS[userRole]} • {user.email}
                             </p>
                         </div>
                     </div>
@@ -228,8 +303,22 @@ const Navigation = ({ onNavigate }) => {
             {/* Secondary navigation */}
             {renderNavigationSection(secondaryItems, 'Quick Access')}
 
+            {/* Admin navigation */}
+            {renderNavigationSection(adminItems, 'Administration')}
+
             {/* Settings navigation */}
             {renderNavigationSection(settingsItems, 'Account')}
+
+            {/* Logout */}
+            <div className="px-3 py-2">
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300 rounded-md transition-colors"
+                >
+                    <LogOut className="h-4 w-4 mr-3 flex-shrink-0" />
+                    Sign Out
+                </button>
+            </div>
 
             {/* Footer info */}
             <div className="px-3 py-2 mt-8">
