@@ -1,0 +1,294 @@
+/* Theme configurations for permit management system */
+
+/* Base Theme Variables */
+:root {
+    /* Light Theme (default) */
+    --theme-background: rgb(249 250 251);
+    --theme-surface: rgb(255 255 255);
+    --theme-surface-hover: rgb(249 250 251);
+    --theme-surface-active: rgb(243 244 246);
+    --theme-border: rgb(229 231 235);
+    --theme-border-light: rgb(243 244 246);
+
+    --theme-text-primary: rgb(17 24 39);
+    --theme-text-secondary: rgb(75 85 99);
+    --theme-text-tertiary: rgb(156 163 175);
+    --theme-text-inverse: rgb(255 255 255);
+
+    /* Semantic Colors */
+    --theme-primary: rgb(59 130 246);
+    --theme-primary-hover: rgb(37 99 235);
+    --theme-primary-light: rgb(219 234 254);
+
+    --theme-success: rgb(16 185 129);
+    --theme-success-hover: rgb(5 150 105);
+    --theme-success-light: rgb(209 250 229);
+
+    --theme-warning: rgb(245 158 11);
+    --theme-warning-hover: rgb(217 119 6);
+    --theme-warning-light: rgb(254 243 199);
+
+    --theme-danger: rgb(239 68 68);
+    --theme-danger-hover: rgb(220 38 38);
+    --theme-danger-light: rgb(254 226 226);
+
+    /* Status Colors */
+    --status-draft: rgb(156 163 175);
+    --status-submitted: rgb(59 130 246);
+    --status-under-review: rgb(245 158 11);
+    --status-approved: rgb(16 185 129);
+    --status-rejected: rgb(239 68 68);
+    --status-expired: rgb(107 114 128);
+
+    /* Permit Type Colors */
+    --permit-building: rgb(16 185 129);
+    --permit-gas: rgb(245 158 11);
+    --permit-electrical: rgb(59 130 246);
+    --permit-plumbing: rgb(96 165 250);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --theme-background: rgb(17 24 39);
+    --theme-surface: rgb(31 41 55);
+    --theme-surface-hover: rgb(55 65 81);
+    --theme-surface-active: rgb(75 85 99);
+    --theme-border: rgb(75 85 99);
+    --theme-border-light: rgb(55 65 81);
+
+    --theme-text-primary: rgb(249 250 251);
+    --theme-text-secondary: rgb(209 213 219);
+    --theme-text-tertiary: rgb(156 163 175);
+    --theme-text-inverse: rgb(17 24 39);
+
+    /* Adjust semantic colors for dark mode */
+    --theme-primary-light: rgb(30 58 138);
+    --theme-success-light: rgb(6 78 59);
+    --theme-warning-light: rgb(120 53 15);
+    --theme-danger-light: rgb(127 29 29);
+}
+
+/* Theme Application Classes */
+.theme-surface {
+    background-color: var(--theme-surface);
+    color: var(--theme-text-primary);
+}
+
+.theme-background {
+    background-color: var(--theme-background);
+}
+
+.theme-text-primary {
+    color: var(--theme-text-primary);
+}
+
+.theme-text-secondary {
+    color: var(--theme-text-secondary);
+}
+
+.theme-border {
+    border-color: var(--theme-border);
+}
+
+/* Component Theme Applications */
+.btn-theme-primary {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+    color: var(--theme-text-inverse);
+}
+
+.btn-theme-primary:hover {
+    background-color: var(--theme-primary-hover);
+    border-color: var(--theme-primary-hover);
+}
+
+.card-themed {
+    background-color: var(--theme-surface);
+    border-color: var(--theme-border);
+    color: var(--theme-text-primary);
+}
+
+.card-themed:hover {
+    background-color: var(--theme-surface-hover);
+}
+
+/* Status Theme Classes */
+.status-badge-draft {
+    background-color: rgb(var(--status-draft) / 0.1);
+    color: var(--status-draft);
+    border-color: rgb(var(--status-draft) / 0.3);
+}
+
+.status-badge-submitted {
+    background-color: rgb(var(--status-submitted) / 0.1);
+    color: var(--status-submitted);
+    border-color: rgb(var(--status-submitted) / 0.3);
+}
+
+.status-badge-under-review {
+    background-color: rgb(var(--status-under-review) / 0.1);
+    color: var(--status-under-review);
+    border-color: rgb(var(--status-under-review) / 0.3);
+}
+
+.status-badge-approved {
+    background-color: rgb(var(--status-approved) / 0.1);
+    color: var(--status-approved);
+    border-color: rgb(var(--status-approved) / 0.3);
+}
+
+.status-badge-rejected {
+    background-color: rgb(var(--status-rejected) / 0.1);
+    color: var(--status-rejected);
+    border-color: rgb(var(--status-rejected) / 0.3);
+}
+
+.status-badge-expired {
+    background-color: rgb(var(--status-expired) / 0.1);
+    color: var(--status-expired);
+    border-color: rgb(var(--status-expired) / 0.3);
+}
+
+/* Permit Type Theme Classes */
+.permit-type-building {
+    color: var(--permit-building);
+}
+
+.permit-type-gas {
+    color: var(--permit-gas);
+}
+
+.permit-type-electrical {
+    color: var(--permit-electrical);
+}
+
+.permit-type-plumbing {
+    color: var(--permit-plumbing);
+}
+
+/* Theme Transition */
+.theme-transition {
+    transition: background-color 200ms ease-in-out,
+    border-color 200ms ease-in-out,
+    color 200ms ease-in-out;
+}
+
+/* High Contrast Theme */
+@media (prefers-contrast: more) {
+    :root {
+        --theme-border: rgb(0 0 0);
+        --theme-text-secondary: rgb(0 0 0);
+    }
+
+    [data-theme="dark"] {
+        --theme-border: rgb(255 255 255);
+        --theme-text-secondary: rgb(255 255 255);
+    }
+
+    .card-themed {
+        border-width: 2px;
+    }
+
+    .btn {
+        border-width: 2px;
+    }
+}
+
+/* Blue Theme Variant */
+[data-theme="blue"] {
+    --theme-primary: rgb(29 78 216);
+    --theme-primary-hover: rgb(30 58 138);
+    --theme-primary-light: rgb(191 219 254);
+}
+
+/* Green Theme Variant */
+[data-theme="green"] {
+    --theme-primary: rgb(5 150 105);
+    --theme-primary-hover: rgb(4 120 87);
+    --theme-primary-light: rgb(167 243 208);
+}
+
+/* Purple Theme Variant */
+[data-theme="purple"] {
+    --theme-primary: rgb(139 92 246);
+    --theme-primary-hover: rgb(124 58 237);
+    --theme-primary-light: rgb(221 214 254);
+}
+
+/* Theme Specific Animations */
+.theme-fade-in {
+    animation: theme-fade-in 0.3s ease-in-out;
+}
+
+@keyframes theme-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    @apply p-2 rounded-md transition-colors duration-200;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-700;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.theme-toggle-icon {
+    @apply h-5 w-5 text-gray-600 dark:text-gray-400;
+}
+
+/* Seasonal Theme Support (optional) */
+.theme-spring {
+    --theme-primary: rgb(34 197 94);
+    --theme-accent: rgb(132 204 22);
+}
+
+.theme-summer {
+    --theme-primary: rgb(59 130 246);
+    --theme-accent: rgb(14 165 233);
+}
+
+.theme-autumn {
+    --theme-primary: rgb(245 158 11);
+    --theme-accent: rgb(217 119 6);
+}
+
+.theme-winter {
+    --theme-primary: rgb(99 102 241);
+    --theme-accent: rgb(79 70 229);
+}
+
+/* Accessibility Theme Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    .theme-transition {
+        transition: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Auto dark mode if user hasn't set preference */
+    :root:not([data-theme]) {
+        color-scheme: dark;
+    }
+}
+
+/* Custom Scrollbar Theme */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--theme-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--theme-text-tertiary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-text-secondary);
+}

@@ -1,0 +1,305 @@
+/* Form-specific styles for permit management system */
+
+/* Form Layout */
+.form-container {
+    @apply max-w-2xl mx-auto space-y-6;
+}
+
+.form-section {
+    @apply space-y-4;
+}
+
+.form-section-title {
+    @apply text-lg font-medium text-gray-900 dark:text-white;
+    @apply flex items-center space-x-2 mb-4;
+}
+
+.form-grid {
+    @apply grid grid-cols-1 gap-4;
+}
+
+.form-grid-2 {
+    @apply md:grid-cols-2;
+}
+
+.form-grid-3 {
+    @apply md:grid-cols-3;
+}
+
+.form-grid-4 {
+    @apply lg:grid-cols-4;
+}
+
+/* Input Variations */
+.input-with-icon {
+    @apply relative;
+}
+
+.input-icon-left {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2;
+    @apply h-4 w-4 text-gray-400;
+}
+
+.input-icon-right {
+    @apply absolute right-3 top-1/2 transform -translate-y-1/2;
+    @apply h-4 w-4 text-gray-400;
+}
+
+.input-with-left-icon {
+    @apply pl-10;
+}
+
+.input-with-right-icon {
+    @apply pr-10;
+}
+
+/* Select Dropdown */
+.select-container {
+    @apply relative;
+}
+
+.select-dropdown {
+    @apply absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg;
+    @apply max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5;
+    @apply overflow-auto focus:outline-none sm:text-sm;
+}
+
+.select-option {
+    @apply relative cursor-default select-none py-2 px-3;
+    @apply text-gray-900 dark:text-white;
+    @apply hover:bg-blue-600 hover:text-white;
+}
+
+.select-option-selected {
+    @apply bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200;
+}
+
+/* Checkbox and Radio */
+.checkbox-container {
+    @apply flex items-center space-x-3;
+}
+
+.checkbox-label {
+    @apply text-sm text-gray-900 dark:text-white;
+}
+
+.radio-group {
+    @apply space-y-3;
+}
+
+.radio-container {
+    @apply flex items-center space-x-3;
+}
+
+.radio-label {
+    @apply text-sm text-gray-900 dark:text-white;
+}
+
+/* Form Validation */
+.validation-summary {
+    @apply bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800;
+    @apply rounded-md p-4;
+}
+
+.validation-list {
+    @apply mt-2 space-y-1;
+}
+
+.validation-item {
+    @apply flex items-center space-x-2 text-sm text-red-800 dark:text-red-200;
+}
+
+.field-error {
+    @apply text-red-600 dark:text-red-400 text-sm mt-1 flex items-center space-x-1;
+}
+
+.field-success {
+    @apply text-green-600 dark:text-green-400 text-sm mt-1 flex items-center space-x-1;
+}
+
+/* Form Actions */
+.form-actions {
+    @apply flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700;
+}
+
+.form-actions-right {
+    @apply flex items-center space-x-3;
+}
+
+.form-actions-left {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+/* Multi-step Form */
+.step-content {
+    @apply opacity-100 transform translate-x-0 transition-all duration-300;
+}
+
+.step-content-entering {
+    @apply opacity-0 translate-x-4;
+}
+
+.step-content-exiting {
+    @apply opacity-0 -translate-x-4;
+}
+
+.step-navigation {
+    @apply flex items-center justify-between;
+}
+
+.step-indicators {
+    @apply flex items-center space-x-4;
+}
+
+.step-connector {
+    @apply w-8 h-0.5 transition-colors duration-300;
+}
+
+.step-connector-completed {
+    @apply bg-green-600;
+}
+
+.step-connector-incomplete {
+    @apply bg-gray-300 dark:bg-gray-600;
+}
+
+/* File Upload */
+.file-upload-area {
+    @apply border-2 border-dashed border-gray-300 dark:border-gray-600;
+    @apply rounded-lg p-6 text-center;
+    @apply hover:border-gray-400 dark:hover:border-gray-500 transition-colors;
+}
+
+.file-upload-active {
+    @apply border-blue-500 bg-blue-50 dark:bg-blue-900/20;
+}
+
+.file-upload-error {
+    @apply border-red-500 bg-red-50 dark:bg-red-900/20;
+}
+
+.file-upload-icon {
+    @apply w-12 h-12 text-gray-400 mx-auto mb-4;
+}
+
+.file-upload-text {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.file-list {
+    @apply space-y-2 mt-4;
+}
+
+.file-item {
+    @apply flex items-center justify-between p-2;
+    @apply bg-gray-50 dark:bg-gray-700 rounded border;
+}
+
+.file-info {
+    @apply flex items-center space-x-2;
+}
+
+.file-name {
+    @apply text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.file-size {
+    @apply text-xs text-gray-500 dark:text-gray-400;
+}
+
+/* Form Progress */
+.form-progress {
+    @apply bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+}
+
+.form-progress-bar {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3;
+}
+
+.progress-indicator {
+    @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2;
+}
+
+.progress-fill {
+    @apply bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out;
+}
+
+/* Auto-save Indicator */
+.autosave-indicator {
+    @apply flex items-center text-xs text-gray-500 dark:text-gray-400;
+}
+
+.autosave-dot {
+    @apply w-2 h-2 rounded-full mr-2;
+}
+
+.autosave-enabled {
+    @apply bg-green-400;
+}
+
+.autosave-disabled {
+    @apply bg-gray-400;
+}
+
+/* Form Sections */
+.form-notice {
+    @apply bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4;
+    @apply border border-blue-200 dark:border-blue-800;
+}
+
+.form-notice-title {
+    @apply text-sm font-medium text-blue-900 dark:text-blue-200 mb-2;
+}
+
+.form-notice-content {
+    @apply text-sm text-blue-800 dark:text-blue-300;
+}
+
+.form-warning {
+    @apply bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4;
+    @apply border border-amber-200 dark:border-amber-800;
+}
+
+.form-error-summary {
+    @apply bg-red-50 dark:bg-red-900/20 rounded-lg p-4;
+    @apply border border-red-200 dark:border-red-800;
+}
+
+/* Required Field Indicator */
+.required-indicator {
+    @apply text-red-500 ml-1;
+}
+
+/* Field Groups */
+.field-group {
+    @apply space-y-2;
+}
+
+.field-group-horizontal {
+    @apply flex items-center space-x-4;
+}
+
+.field-group-title {
+    @apply text-base font-medium text-gray-900 dark:text-white mb-3;
+}
+
+/* Responsive Form Layout */
+@media (max-width: 640px) {
+    .form-grid-2,
+    .form-grid-3,
+    .form-grid-4 {
+        @apply grid-cols-1;
+    }
+
+    .form-actions {
+        @apply flex-col space-y-3;
+    }
+
+    .form-actions-right {
+        @apply w-full space-y-2 space-x-0;
+    }
+
+    .form-actions-right > * {
+        @apply w-full;
+    }
+}

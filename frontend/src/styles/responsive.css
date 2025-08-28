@@ -1,0 +1,348 @@
+/* Responsive design utilities and breakpoint-specific styles */
+
+/* Mobile First Approach */
+/* Base styles apply to mobile (320px+) */
+
+/* Small screens and up (640px+) */
+@media (min-width: 640px) {
+    .container {
+        @apply px-6;
+    }
+
+    .dashboard-header {
+        @apply flex-row items-center;
+    }
+
+    .form-grid-sm-2 {
+        @apply grid-cols-2;
+    }
+
+    .stats-grid {
+        @apply grid-cols-2;
+    }
+}
+
+/* Medium screens and up (768px+) */
+@media (min-width: 768px) {
+    .sidebar-desktop {
+        @apply translate-x-0;
+    }
+
+    .main-content-with-sidebar {
+        @apply ml-64;
+    }
+
+    .form-grid-md-2 {
+        @apply grid-cols-2;
+    }
+
+    .form-grid-md-3 {
+        @apply grid-cols-3;
+    }
+
+    .table-responsive {
+        @apply table;
+    }
+
+    .card-horizontal {
+        @apply flex-row;
+    }
+}
+
+/* Large screens and up (1024px+) */
+@media (min-width: 1024px) {
+    .container {
+        @apply px-8;
+    }
+
+    .dashboard-main-grid {
+        @apply grid-cols-3;
+    }
+
+    .stats-grid {
+        @apply grid-cols-4;
+    }
+
+    .form-grid-lg-3 {
+        @apply grid-cols-3;
+    }
+
+    .form-grid-lg-4 {
+        @apply grid-cols-4;
+    }
+
+    .permits-grid {
+        @apply grid-cols-3;
+    }
+}
+
+/* Extra large screens and up (1280px+) */
+@media (min-width: 1280px) {
+    .dashboard-wide-grid {
+        @apply grid-cols-5;
+    }
+
+    .permits-grid-xl {
+        @apply grid-cols-4;
+    }
+
+    .sidebar-wide {
+        @apply w-80;
+    }
+}
+
+/* 2XL screens and up (1536px+) */
+@media (min-width: 1536px) {
+    .container-2xl {
+        @apply max-w-screen-2xl;
+    }
+
+    .dashboard-ultra-wide {
+        @apply grid-cols-6;
+    }
+}
+
+/* Mobile Specific Styles */
+@media (max-width: 639px) {
+    .mobile-hidden {
+        @apply hidden;
+    }
+
+    .mobile-full-width {
+        @apply w-full;
+    }
+
+    .mobile-stack {
+        @apply flex-col space-y-2 space-x-0;
+    }
+
+    .mobile-center {
+        @apply text-center;
+    }
+
+    /* Hide complex tables on mobile */
+    .table-desktop {
+        @apply hidden;
+    }
+
+    .card-mobile {
+        @apply block;
+    }
+
+    /* Adjust form layout for mobile */
+    .form-mobile-stack > * {
+        @apply w-full;
+    }
+
+    /* Mobile navigation */
+    .nav-mobile {
+        @apply fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800;
+        @apply border-t border-gray-200 dark:border-gray-700 px-4 py-2;
+    }
+
+    .nav-mobile-items {
+        @apply flex justify-around;
+    }
+
+    .nav-mobile-item {
+        @apply flex flex-col items-center space-y-1 p-2;
+    }
+
+    /* Mobile header adjustments */
+    .header-mobile {
+        @apply px-4;
+    }
+
+    .header-title-mobile {
+        @apply text-lg;
+    }
+
+    /* Modal adjustments for mobile */
+    .modal-mobile {
+        @apply m-0 h-full rounded-none;
+    }
+
+    .modal-content-mobile {
+        @apply min-h-screen items-start;
+    }
+}
+
+/* Tablet Portrait (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .tablet-grid-2 {
+        @apply grid-cols-2;
+    }
+
+    .tablet-hidden {
+        @apply hidden;
+    }
+
+    .sidebar-tablet {
+        @apply w-56;
+    }
+}
+
+/* Desktop Specific (1024px+) */
+@media (min-width: 1024px) {
+    .desktop-only {
+        @apply block;
+    }
+
+    .mobile-tablet-hidden {
+        @apply hidden lg:block;
+    }
+
+    /* Show full table on desktop */
+    .table-desktop {
+        @apply table;
+    }
+
+    .card-mobile {
+        @apply hidden;
+    }
+
+    /* Desktop sidebar */
+    .sidebar-desktop {
+        @apply relative translate-x-0;
+    }
+
+    /* Desktop header */
+    .header-desktop {
+        @apply ml-64;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch target size */
+    .btn {
+        @apply min-h-11;
+    }
+
+    .nav-link {
+        @apply min-h-12;
+    }
+
+    .table-row {
+        @apply min-h-16;
+    }
+
+    /* Remove hover effects on touch devices */
+    .hover-effect:hover {
+        @apply transform-none;
+    }
+
+    /* Adjust focus styles for touch */
+    .focus-ring {
+        @apply focus:ring-4;
+    }
+}
+
+/* Print Styles */
+@media print {
+    /* Hide interactive elements */
+    .no-print,
+    .sidebar,
+    .header-actions,
+    .btn,
+    .nav-link {
+        @apply hidden;
+    }
+
+    /* Adjust layout for print */
+    .main-content {
+        @apply ml-0;
+    }
+
+    .card {
+        @apply shadow-none border border-gray-400;
+    }
+
+    /* Ensure good contrast for print */
+    .text-gray-600 {
+        @apply text-gray-800;
+    }
+
+    .bg-gray-50 {
+        @apply bg-white;
+    }
+
+    /* Page breaks */
+    .print-break-before {
+        page-break-before: always;
+    }
+
+    .print-break-after {
+        page-break-after: always;
+    }
+
+    .print-avoid-break {
+        page-break-inside: avoid;
+    }
+}
+
+/* Dark Mode Specific Responsive Adjustments */
+@media (prefers-color-scheme: dark) {
+    @media (max-width: 639px) {
+        .nav-mobile {
+            @apply bg-gray-900 border-gray-700;
+        }
+    }
+}
+
+/* High DPI Display Optimizations */
+@media (min-resolution: 2dppx) {
+    .icon,
+    .logo {
+        image-rendering: auto;
+    }
+}
+
+/* Landscape Mobile Devices */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-panel {
+        @apply max-h-screen overflow-y-auto;
+    }
+
+    .sidebar {
+        @apply text-sm;
+    }
+
+    .header {
+        @apply h-12;
+    }
+}
+
+/* Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+    .transition-all,
+    .transition-colors,
+    .transition-shadow,
+    .transition-transform {
+        @apply transition-none;
+    }
+
+    .animate-pulse,
+    .animate-spin,
+    .animate-bounce {
+        @apply animate-none;
+    }
+
+    /* Provide alternative feedback for reduced motion */
+    .loading-spinner {
+        @apply opacity-50;
+    }
+}
+
+/* Container Queries (when supported) */
+@container (min-width: 400px) {
+    .card-container-responsive {
+        @apply p-6;
+    }
+}
+
+@container (min-width: 600px) {
+    .form-container-responsive {
+        @apply grid-cols-2;
+    }
+}
