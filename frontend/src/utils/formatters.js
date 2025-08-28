@@ -1,188 +1,65 @@
-// formatters.js - Enhanced formatting utilities
-import { format, parseISO, formatDistanceToNow, isValid } from 'date-fns'
+// Date formatting utilities
+export const formatDate = (date, format = 'short') => {
+    if (!date) return 'N/A'
+
+    const dateObj = new Date(date)
+    if (isNaN(dateObj.getTime())) return 'Invalid Date'
+
+    const options = {
+        short: {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        },
+        long: {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        },
+        time: {
+            hour: '2-digit',
+            minute: '2-digit'
+        },
+        datetime: {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }
+    }
+
+    return dateObj.toLocaleDateString('en-US', options[format] || options.short)
+}
 
 // Currency formatting
-export const formatCurrency = (amount, currency = 'USD', options = {}) => {
-    const { minimumFractionDigits = 2, maximumFractionDigits = 2 } = options
+export const formatCurrency = (amount, currency = 'USD', locale = 'en-US') => {
+    if (amount === null || amount === undefined || isNaN(amount)) return 'N/A'
 
-    if (amount === null || amount === undefined || amount === '') {
-        return ''
-    }
-
-    // Handle string inputs by removing non-numeric characters except decimal point
-    let numericAmount = amount
-    if (typeof amount === 'string') {
-        numericAmount = parseFloat(amount.replace(/[^0-9.-]/g, ''))
-    }
-
-    if (isNaN(numericAmount)) {
-        return ''
-    }
-
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(locale, {
         style: 'currency',
-        currency,
-        minimumFractionDigits,
-        maximumFractionDigits
-    }).format(numericAmount)
-}
-
-// Parse currency string to number
-export const parseCurrency = (currencyString) => {
-    if (typeof currencyString === 'number') return currencyString
-    if (!currencyString) return 0
-
-    const cleaned = currencyString.toString().replace(/[^0-9.-]/g, '')
-    const parsed = parseFloat(cleaned)
-    return isNaN(parsed) ? 0 : parsed
-}
-
-// Format currency input (for controlled inputs)
-export const formatCurrencyInput = (value) => {
-    if (!value) return ''
-
-    // Remove all non-digit characters except decimal point
-    const cleaned = value.replace(/[^\d.]/g, '')
-
-    // Handle multiple decimal points
-    const parts = cleaned.split('.')
-    if (parts.length > 2) {
-        return parts[0] + '.' + parts.slice(1).join('')
-    }
-
-    // Limit decimal places to 2
-    if (parts[1] && parts[1].length > 2) {
-        return parts[0] + '.' + parts[1].substring(0, 2)
-    }
-
-    const number = parseFloat(cleaned)
-    if (isNaN(number)) return ''
-
-    // Format with commas but preserve decimal input
-    const formatted = new Intl.NumberFormat('en-US', {
+        currency: currency,
         minimumFractionDigits: 0,
         maximumFractionDigits: 2
-    }).format(number)
-
-    return '$' + formatted
+    }).format(amount)
 }
 
-// Date formatting
-export const formatDate = (date, formatString = 'MM/dd/yyyy') => {
-    if (!date) return ''
-
-    try {
-        const dateObj = typeof date === 'string' ? parseISO(date) : date
-
-        if (!isValid(dateObj)) {
-            return 'Invalid date'
-        }
-
-        return format(dateObj, formatString)
-    } catch (error) {
-        console.error('Date formatting error:', error)
-        return 'Invalid date'
-    }
-}
-
-// Relative time formatting
-export const formatRelativeTime = (date) => {
-    if (!date) return ''
-
-    try {
-        const dateObj = typeof date === 'string' ? parseISO(date) : date
-
-        if (!isValid(dateObj)) {
-            return 'Invalid date'
-        }
-
-        return formatDistanceToNow(dateObj, { addSuffix: true })
-    } catch (error) {
-        console.error('Relative time formatting error:', error)
-        return 'Invalid date'
-    }
-}
-
-// Phone number formatting
-export const formatPhoneDisplay = (phone) => {
-    if (!phone) return ''
-
-    const digits = phone.replace(/\D/g, '')
-
-    if (digits.length === 10) {
-        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
-    }
-
-    if (digits.length === 11 && digits[0] === '1') {
-        return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
-    }
-
-    return phone
-}
-
-// Address formatting
-export const formatAddress = (addressObj) => {
-    if (!addressObj) return ''
-
-    const parts = [
-        addressObj.address1,
-        addressObj.address2,
-        addressObj.city,
-        addressObj.state && addressObj.zipCode ? `${addressObj.state} ${addressObj.zipCode}` : addressObj.state || addressObj.zipCode
-    ].filter(Boolean)
-
-    return parts.join(', ')
-}
-
-// Full name formatting
-export const formatFullName = (firstName, lastName, options = {}) => {
-    const { includeMiddle = false, middle = '', lastFirst = false } = options
-
-    if (!firstName && !lastName) return ''
-
-    const first = firstName || ''
-    const last = lastName || ''
-    const mid = includeMiddle && middle ? ` ${middle}` : ''
-
-    if (lastFirst) {
-        return `${last}, ${first}${mid}`.trim()
-    }
-
-    return `${first}${mid} ${last}`.trim()
-}
-
-// File size formatting
-export const formatFileSize = (bytes, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes'
-
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-}
-
-// Number formatting with commas
+// Number formatting
 export const formatNumber = (number, options = {}) => {
-    const { minimumFractionDigits = 0, maximumFractionDigits = 2 } = options
+    if (number === null || number === undefined || isNaN(number)) return 'N/A'
 
-    if (number === null || number === undefined || isNaN(number)) {
-        return ''
+    const defaultOptions = {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
     }
 
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits,
-        maximumFractionDigits
-    }).format(number)
+    return new Intl.NumberFormat('en-US', { ...defaultOptions, ...options }).format(number)
 }
 
 // Percentage formatting
 export const formatPercentage = (value, decimals = 1) => {
-    if (value === null || value === undefined || isNaN(value)) {
-        return ''
-    }
+    if (value === null || value === undefined || isNaN(value)) return 'N/A'
 
     return new Intl.NumberFormat('en-US', {
         style: 'percent',
@@ -191,184 +68,249 @@ export const formatPercentage = (value, decimals = 1) => {
     }).format(value / 100)
 }
 
-// Permit number formatting
-export const formatPermitNumber = (permitType, id) => {
-    const prefix = permitType === 'BUILDING' ? 'BP' : 'GP'
-    return `${prefix}${String(id).padStart(6, '0')}`
+// Phone number formatting
+export const formatPhone = (phone) => {
+    if (!phone) return ''
+
+    // Remove all non-digits
+    const cleaned = phone.replace(/\D/g, '')
+
+    // Format based on length
+    if (cleaned.length <= 3) {
+        return cleaned
+    } else if (cleaned.length <= 6) {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`
+    } else if (cleaned.length <= 10) {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
+    } else {
+        return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)} ext. ${cleaned.slice(10)}`
+    }
 }
 
-// Status formatting with colors
-export const formatStatus = (status, options = {}) => {
-    const { includeIcon = false, colorClass = false } = options
+// File size formatting
+export const formatFileSize = (bytes) => {
+    if (!bytes || bytes === 0) return '0 B'
 
-    const statusConfig = {
-        DRAFT: { label: 'Draft', color: 'gray', icon: '📝' },
-        SUBMITTED: { label: 'Submitted', color: 'blue', icon: '📤' },
-        PENDING_REVIEW: { label: 'Pending Review', color: 'yellow', icon: '⏳' },
-        APPROVED: { label: 'Approved', color: 'green', icon: '✅' },
-        REJECTED: { label: 'Rejected', color: 'red', icon: '❌' },
-        EXPIRED: { label: 'Expired', color: 'gray', icon: '⏰' }
-    }
+    const units = ['B', 'KB', 'MB', 'GB', 'TB']
+    const index = Math.floor(Math.log(bytes) / Math.log(1024))
+    const size = (bytes / Math.pow(1024, index)).toFixed(1)
 
-    const config = statusConfig[status] || { label: status, color: 'gray', icon: '❓' }
+    return `${size} ${units[index]}`
+}
 
-    let formatted = config.label
+// Relative time formatting
+export const formatRelativeTime = (date) => {
+    if (!date) return 'N/A'
 
-    if (includeIcon) {
-        formatted = `${config.icon} ${formatted}`
-    }
+    const now = new Date()
+    const target = new Date(date)
+    const diffInSeconds = Math.floor((now - target) / 1000)
 
-    if (colorClass) {
-        return {
-            text: formatted,
-            className: `text-${config.color}-600 dark:text-${config.color}-400`
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'week', seconds: 604800 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+    ]
+
+    for (const interval of intervals) {
+        const count = Math.floor(Math.abs(diffInSeconds) / interval.seconds)
+        if (count >= 1) {
+            const timeAgo = diffInSeconds > 0 ? 'ago' : 'from now'
+            return `${count} ${interval.label}${count > 1 ? 's' : ''} ${timeAgo}`
         }
     }
 
-    return formatted
+    return 'Just now'
 }
 
-// Duration formatting
+// Duration formatting (minutes to human readable)
 export const formatDuration = (minutes) => {
-    if (!minutes || minutes < 0) return ''
+    if (!minutes || minutes === 0) return '0 minutes'
 
     const hours = Math.floor(minutes / 60)
-    const mins = minutes % 60
+    const remainingMinutes = minutes % 60
 
     if (hours === 0) {
-        return `${mins} minute${mins !== 1 ? 's' : ''}`
-    }
-
-    if (mins === 0) {
+        return `${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`
+    } else if (remainingMinutes === 0) {
         return `${hours} hour${hours !== 1 ? 's' : ''}`
-    }
-
-    return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`
-}
-
-// BTU formatting
-export const formatBTU = (btu) => {
-    if (!btu || isNaN(btu)) return ''
-
-    const btuValue = parseInt(btu)
-
-    if (btuValue >= 1000000) {
-        return `${(btuValue / 1000000).toFixed(1)}M BTU/hr`
-    }
-
-    if (btuValue >= 1000) {
-        return `${(btuValue / 1000).toFixed(0)}K BTU/hr`
-    }
-
-    return `${btuValue.toLocaleString()} BTU/hr`
-}
-
-// Project cost tier formatting
-export const formatProjectTier = (cost) => {
-    const amount = parseCurrency(cost)
-
-    if (amount < 1000) return 'Small Project'
-    if (amount < 10000) return 'Medium Project'
-    if (amount < 50000) return 'Large Project'
-    if (amount < 100000) return 'Major Project'
-    return 'Commercial Project'
-}
-
-// Form field formatting helpers
-export const formatters = {
-    // Format as you type handlers
-    currency: (value) => {
-        const numeric = value.replace(/[^\d.]/g, '')
-        if (!numeric) return ''
-
-        const parts = numeric.split('.')
-        const dollars = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-        const cents = parts[1] ? '.' + parts[1].substring(0, 2) : ''
-
-        return '$' + dollars + cents
-    },
-
-    phone: (value) => {
-        const digits = value.replace(/\D/g, '')
-        if (digits.length <= 3) return digits
-        if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
-    },
-
-    zipCode: (value) => {
-        return value.replace(/\D/g, '').substring(0, 5)
-    },
-
-    parcelId: (value) => {
-        return value.toUpperCase().replace(/[^A-Z0-9-]/g, '')
-    },
-
-    licenseNumber: (value) => {
-        return value.toUpperCase().replace(/[^A-Z0-9-]/g, '')
+    } else {
+        return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`
     }
 }
 
-// Validation message formatting
-export const formatValidationMessage = (field, error) => {
-    if (!error) return ''
+// Address formatting
+export const formatAddress = (address) => {
+    if (!address) return 'N/A'
 
-    if (typeof error === 'object' && error.type === 'warning') {
-        return error.message
-    }
+    const parts = []
 
-    return error
+    if (address.address1) parts.push(address.address1)
+    if (address.address2) parts.push(address.address2)
+
+    const cityStateZip = [address.city, address.state, address.zipCode]
+        .filter(Boolean)
+        .join(', ')
+
+    if (cityStateZip) parts.push(cityStateZip)
+
+    return parts.join(', ') || 'N/A'
 }
 
-// Export utilities
-export const exportFormatters = {
-    csv: (data, filename = 'export.csv') => {
-        const csv = data.map(row =>
-                                 Object.values(row).map(value =>
-                                                            typeof value === 'string' && value.includes(',')
-                                                            ? `"${value}"`
-                                                            : value
-                                 ).join(',')
-        ).join('\n')
+// Permit number formatting
+export const formatPermitNumber = (number, permitType) => {
+    if (!number) return 'N/A'
 
-        const blob = new Blob([csv], { type: 'text/csv' })
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = filename
-        link.click()
-        window.URL.revokeObjectURL(url)
-    },
-
-    json: (data, filename = 'export.json') => {
-        const json = JSON.stringify(data, null, 2)
-        const blob = new Blob([json], { type: 'application/json' })
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = filename
-        link.click()
-        window.URL.revokeObjectURL(url)
+    // If already formatted, return as-is
+    if (typeof number === 'string' && number.includes('-')) {
+        return number
     }
+
+    // Generate formatted permit number
+    const prefix = permitType === 'building' ? 'BP' : 'GP'
+    const year = new Date().getFullYear()
+    const paddedNumber = String(number).padStart(6, '0')
+
+    return `${prefix}-${year}-${paddedNumber}`
+}
+
+// Status formatting
+export const formatStatus = (status) => {
+    if (!status) return 'Unknown'
+
+    return status
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, l => l.toUpperCase())
+}
+
+// Truncate text with ellipsis
+export const truncateText = (text, maxLength = 100, suffix = '...') => {
+    if (!text || text.length <= maxLength) return text || ''
+
+    return text.substring(0, maxLength - suffix.length) + suffix
+}
+
+// Title case formatting
+export const toTitleCase = (str) => {
+    if (!str) return ''
+
+    return str
+        .toLowerCase()
+        .replace(/(?:^|\s)\w/g, (match) => match.toUpperCase())
+        .replace(/\b(?:a|an|and|at|by|for|in|of|on|or|the|to|up|but|nor|yet|so)\b/gi, (match) => match.toLowerCase())
+        .replace(/^./, (match) => match.toUpperCase())
+}
+
+// Camel case to readable format
+export const camelToReadable = (str) => {
+    if (!str) return ''
+
+    return str
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, (str) => str.toUpperCase())
+        .trim()
+}
+
+// Snake case to readable format
+export const snakeToReadable = (str) => {
+    if (!str) return ''
+
+    return str
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
+}
+
+// Format coordinates
+export const formatCoordinates = (lat, lng, precision = 4) => {
+    if (!lat || !lng) return 'N/A'
+
+    const latitude = parseFloat(lat).toFixed(precision)
+    const longitude = parseFloat(lng).toFixed(precision)
+
+    return `${latitude}, ${longitude}`
+}
+
+// Format boolean as Yes/No
+export const formatBoolean = (value) => {
+    if (value === null || value === undefined) return 'N/A'
+    return value ? 'Yes' : 'No'
+}
+
+// Format array as comma-separated list
+export const formatArray = (array, conjunction = 'and') => {
+    if (!array || !Array.isArray(array) || array.length === 0) return 'None'
+
+    if (array.length === 1) return array[0]
+    if (array.length === 2) return `${array[0]} ${conjunction} ${array[1]}`
+
+    return `${array.slice(0, -1).join(', ')}, ${conjunction} ${array[array.length - 1]}`
+}
+
+// Format permit timeline
+export const formatPermitTimeline = (permit) => {
+    const timeline = []
+
+    if (permit.submissionDate) {
+        timeline.push({
+                          date: permit.submissionDate,
+                          status: 'submitted',
+                          label: 'Application Submitted'
+                      })
+    }
+
+    if (permit.approvalDate) {
+        timeline.push({
+                          date: permit.approvalDate,
+                          status: permit.status === 'APPROVED' ? 'approved' : 'rejected',
+                          label: permit.status === 'APPROVED' ? 'Permit Approved' : 'Permit Rejected'
+                      })
+    }
+
+    if (permit.expirationDate && permit.status === 'APPROVED') {
+        timeline.push({
+                          date: permit.expirationDate,
+                          status: 'expires',
+                          label: 'Permit Expires'
+                      })
+    }
+
+    return timeline.sort((a, b) => new Date(a.date) - new Date(b.date))
+}
+
+// Format validation errors for display
+export const formatValidationErrors = (errors) => {
+    if (!errors || typeof errors !== 'object') return []
+
+    return Object.entries(errors).map(([field, message]) => ({
+        field: camelToReadable(field),
+        message: Array.isArray(message) ? message.join(', ') : message
+    }))
 }
 
 export default {
-    formatCurrency,
-    parseCurrency,
-    formatCurrencyInput,
     formatDate,
-    formatRelativeTime,
-    formatPhoneDisplay,
-    formatAddress,
-    formatFullName,
-    formatFileSize,
+    formatCurrency,
     formatNumber,
     formatPercentage,
+    formatPhone,
+    formatFileSize,
+    formatRelativeTime,
+    formatDuration,
+    formatAddress,
     formatPermitNumber,
     formatStatus,
-    formatDuration,
-    formatBTU,
-    formatProjectTier,
-    formatters,
-    formatValidationMessage,
-    exportFormatters
+    truncateText,
+    toTitleCase,
+    camelToReadable,
+    snakeToReadable,
+    formatCoordinates,
+    formatBoolean,
+    formatArray,
+    formatPermitTimeline,
+    formatValidationErrors
 }

@@ -1,43 +1,28 @@
 import React, { useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import { clsx } from 'clsx'
-import { X } from 'lucide-react'
+import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react'
+import Button from './Button'
+import clsx from 'clsx'
 
 const Modal = ({
-                   isOpen = false,
+                   isOpen,
                    onClose,
                    title,
                    children,
                    footer,
                    size = 'md',
-                   showCloseButton = true,
+                   closeOnOverlay = true,
                    closeOnEscape = true,
-                   closeOnOverlayClick = true,
-                   preventScroll = true,
-                   className = '',
-                   overlayClassName = '',
-                   contentClassName = '',
-                   ...props
+                   className = ''
                }) => {
     const modalRef = useRef(null)
-    const previouslyFocusedElement = useRef(null)
-
-    const sizes = {
-        xs: 'max-w-md',
-        sm: 'max-w-lg',
-        md: 'max-w-2xl',
-        lg: 'max-w-4xl',
-        xl: 'max-w-6xl',
-        full: 'max-w-full mx-4'
-    }
 
     // Handle escape key
     useEffect(() => {
-        if (!closeOnEscape) return
+        if (!isOpen || !closeOnEscape) return
 
         const handleEscape = (e) => {
-            if (e.key === 'Escape' && isOpen) {
-                onClose?.()
+            if (e.key === 'Escape') {
+                onClose()
             }
         }
 
@@ -45,10 +30,15 @@ const Modal = ({
         return () => document.removeEventListener('keydown', handleEscape)
     }, [isOpen, closeOnEscape, onClose])
 
-    // Handle body scroll
-    useEffect(() => {
-        if (!preventScroll) return
+    // Handle click outside
+    const handleOverlayClick = (e) => {
+        if (closeOnOverlay && e.target === e.currentTarget) {
+            onClose()
+        }
+    }
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden'
         } else {
@@ -58,198 +48,182 @@ const Modal = ({
         return () => {
             document.body.style.overflow = 'unset'
         }
-    }, [isOpen, preventScroll])
-
-    // Handle focus management
-    useEffect(() => {
-        if (isOpen) {
-            previouslyFocusedElement.current = document.activeElement
-            modalRef.current?.focus()
-        } else {
-            previouslyFocusedElement.current?.focus()
-        }
     }, [isOpen])
 
-    // Focus trap
+    // Focus management
     useEffect(() => {
-        if (!isOpen) return
-
-        const handleTabKey = (e) => {
-            if (e.key !== 'Tab') return
-
-            const focusableElements = modalRef.current?.querySelectorAll(
+        if (isOpen && modalRef.current) {
+            const focusableElements = modalRef.current.querySelectorAll(
                 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
             )
-
-            if (!focusableElements?.length) return
-
-            const firstElement = focusableElements[0]
-            const lastElement = focusableElements[focusableElements.length - 1]
-
-            if (e.shiftKey) {
-                if (document.activeElement === firstElement) {
-                    lastElement.focus()
-                    e.preventDefault()
-                }
-            } else {
-                if (document.activeElement === lastElement) {
-                    firstElement.focus()
-                    e.preventDefault()
-                }
+            const firstFocusable = focusableElements[0]
+            if (firstFocusable) {
+                firstFocusable.focus()
             }
         }
-
-        document.addEventListener('keydown', handleTabKey)
-        return () => document.removeEventListener('keydown', handleTabKey)
     }, [isOpen])
-
-    const handleOverlayClick = (e) => {
-        if (closeOnOverlayClick && e.target === e.currentTarget) {
-            onClose?.()
-        }
-    }
-
-    const handleClose = () => {
-        onClose?.()
-    }
 
     if (!isOpen) return null
 
-    const modalContent = (
-        <div
-            className={clsx(
-                'fixed inset-0 z-50 flex items-center justify-center p-4',
-                'bg-black bg-opacity-50 backdrop-blur-sm',
-                overlayClassName
-            )}
-            onClick={handleOverlayClick}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={title ? 'modal-title' : undefined}
-        >
+    const sizeClasses = {
+        sm: 'max-w-md',
+        md: 'max-w-lg',
+        lg: 'max-w-2xl',
+        xl: 'max-w-4xl',
+        full: 'max-w-7xl'
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+            {/* Backdrop */}
             <div
-                ref={modalRef}
-                className={clsx(
-                    'relative w-full max-h-full overflow-hidden',
-                    'bg-white dark:bg-gray-800 rounded-lg shadow-xl',
-                    'transform transition-all duration-300 ease-out',
-                    'focus:outline-none',
-                    sizes[size],
-                    contentClassName
-                )}
-                tabIndex={-1}
-                {...props}
-            >
-                {/* Header */}
-                {(title || showCloseButton) && (
-                    <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                        {title && (
-                            <h2
+                className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                onClick={handleOverlayClick}
+            />
+
+            {/* Modal Container */}
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    ref={modalRef}
+                    className={clsx(
+                        'relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 w-full',
+                        sizeClasses[size],
+                        className
+                    )}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title"
+                >
+                    {/* Header */}
+                    {title && (
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3
                                 id="modal-title"
                                 className="text-lg font-semibold text-gray-900 dark:text-white"
                             >
                                 {title}
-                            </h2>
-                        )}
-
-                        {showCloseButton && (
+                            </h3>
                             <button
-                                type="button"
-                                onClick={handleClose}
-                                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                onClick={onClose}
+                                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
                                 aria-label="Close modal"
                             >
-                                <X className="h-4 w-4" />
+                                <X className="h-5 w-5" />
                             </button>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
 
-                {/* Content */}
-                <div className={clsx(
-                    'overflow-y-auto',
-                    !footer ? 'p-6' : 'p-6 pb-0',
-                    className
-                )}>
-                    {children}
+                    {/* Body */}
+                    <div className="px-6 py-4">
+                        {children}
+                    </div>
+
+                    {/* Footer */}
+                    {footer && (
+                        <div className="flex items-center justify-end space-x-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                            {footer}
+                        </div>
+                    )}
                 </div>
-
-                {/* Footer */}
-                {footer && (
-                    <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                        {footer}
-                    </div>
-                )}
             </div>
         </div>
     )
-
-    return createPortal(modalContent, document.body)
 }
 
-// Predefined modal variants
+// Confirm Modal Component
 export const ConfirmModal = ({
                                  isOpen,
                                  onClose,
                                  onConfirm,
-                                 title = 'Confirm Action',
+                                 title,
                                  message,
                                  confirmText = 'Confirm',
                                  cancelText = 'Cancel',
-                                 variant = 'danger',
+                                 variant = 'primary',
                                  loading = false,
+                                 icon,
+                                 className = ''
                              }) => {
-    const confirmVariants = {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-        danger: 'bg-red-600 hover:bg-red-700 text-white',
-        warning: 'bg-yellow-600 hover:bg-yellow-700 text-white',
-        success: 'bg-green-600 hover:bg-green-700 text-white'
+    const getVariantStyles = () => {
+        switch (variant) {
+            case 'danger':
+                return {
+                    iconBg: 'bg-red-100 dark:bg-red-900',
+                    iconColor: 'text-red-600 dark:text-red-400',
+                    defaultIcon: AlertTriangle
+                }
+            case 'warning':
+                return {
+                    iconBg: 'bg-amber-100 dark:bg-amber-900',
+                    iconColor: 'text-amber-600 dark:text-amber-400',
+                    defaultIcon: AlertCircle
+                }
+            case 'success':
+                return {
+                    iconBg: 'bg-green-100 dark:bg-green-900',
+                    iconColor: 'text-green-600 dark:text-green-400',
+                    defaultIcon: CheckCircle
+                }
+            default:
+                return {
+                    iconBg: 'bg-blue-100 dark:bg-blue-900',
+                    iconColor: 'text-blue-600 dark:text-blue-400',
+                    defaultIcon: Info
+                }
+        }
     }
+
+    const variantStyles = getVariantStyles()
+    const IconComponent = icon || variantStyles.defaultIcon
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={title}
             size="sm"
-            footer={
-                <>
-                    <button
-                        type="button"
+            className={className}
+        >
+            <div className="text-center">
+                {/* Icon */}
+                <div className={clsx(
+                    'mx-auto flex h-12 w-12 items-center justify-center rounded-full mb-4',
+                    variantStyles.iconBg
+                )}>
+                    <IconComponent className={clsx('h-6 w-6', variantStyles.iconColor)} />
+                </div>
+
+                {/* Title */}
+                {title && (
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        {title}
+                    </h3>
+                )}
+
+                {/* Message */}
+                {message && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        {message}
+                    </p>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center justify-center space-x-3">
+                    <Button
+                        variant="outline"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                         disabled={loading}
                     >
                         {cancelText}
-                    </button>
-                    <button
-                        type="button"
+                    </Button>
+                    <Button
+                        variant={variant}
                         onClick={onConfirm}
-                        disabled={loading}
-                        className={clsx(
-                            'px-4 py-2 text-sm font-medium rounded-md transition-colors',
-                            'disabled:opacity-50 disabled:cursor-not-allowed',
-                            confirmVariants[variant]
-                        )}
+                        loading={loading}
                     >
-                        {loading ? (
-                            <>
-                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                                </svg>
-                                Processing...
-                            </>
-                        ) : (
-                             confirmText
-                         )}
-                    </button>
-                </>
-            }
-        >
-            <p className="text-gray-600 dark:text-gray-400">
-                {message}
-            </p>
+                        {confirmText}
+                    </Button>
+                </div>
+            </div>
         </Modal>
     )
 }
