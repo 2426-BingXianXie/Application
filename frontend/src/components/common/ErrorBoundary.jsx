@@ -39,8 +39,7 @@ class ErrorBoundary extends React.Component {
             userAgent: navigator.userAgent,
             url: window.location.href
         })
-
-        // In production, you might want to send this to an error reporting service
+        // Report error to external service in production
         if (import.meta.env.PROD) {
             this.reportError(error, errorInfo, eventId)
         }
@@ -48,8 +47,7 @@ class ErrorBoundary extends React.Component {
 
     reportError = async (error, errorInfo, eventId) => {
         try {
-            // This would be replaced with your actual error reporting service
-            // e.g., Sentry, LogRocket, or custom endpoint
+          // Replace with actual error reporting service integration
             await fetch('/api/v1/errors/report', {
                 method: 'POST',
                 headers: {

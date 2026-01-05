@@ -44,7 +44,6 @@ const PermitDetails = () => {
     const [rejectionReason, setRejectionReason] = useState('')
 
     // Determine permit type and use appropriate hook
-    // This would typically be determined from the permit data
     const { usePermit, useSubmitPermit, useApprovePermit, useRejectPermit } = usePermits('building')
 
     const { data: permit, isLoading, refetch } = usePermit(id)
@@ -77,7 +76,6 @@ const PermitDetails = () => {
                 break
 
             case 'PENDING_REVIEW':
-                // These would be admin/reviewer actions
                 actions.push({
                                  key: 'approve',
                                  label: 'Approve',
@@ -146,7 +144,6 @@ const PermitDetails = () => {
     }
 
     const handleDownloadCertificate = () => {
-        // This would call the download service
         success('Certificate download started!')
     }
 

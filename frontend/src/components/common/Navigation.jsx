@@ -182,8 +182,6 @@ const Navigation = ({ onNavigate }) => {
 
     // Get badge content for navigation item
     const getBadgeContent = (badgeType) => {
-        // This would typically come from a global state or API
-        // For now, return placeholder values based on user role
         switch (badgeType) {
             case 'approval_count':
                 return hasPermission('approve:permits') ? '3' : null

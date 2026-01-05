@@ -95,7 +95,6 @@ const PermitDetails = () => {
     }
 
     const handleViewPermit = (permitId) => {
-        // Already viewing - could scroll to top or refresh
         window.scrollTo(0, 0)
     }
 

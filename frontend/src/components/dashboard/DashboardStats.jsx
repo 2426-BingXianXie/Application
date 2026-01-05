@@ -45,7 +45,7 @@ const DashboardStats = ({ stats = {}, loading = false, timeRange = 'month' }) =>
             stat: stats.pendingReview || 0,
             previousStat: stats.previousPendingReview || 0,
             change: stats.pendingReviewChange || 0,
-            changeType: stats.pendingReviewChange <= 0 ? 'increase' : 'decrease', // Lower pending is better
+            changeType: stats.pendingReviewChange <= 0 ? 'increase' : 'decrease',
             href: '/permits?status=submitted',
             icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
             color: 'amber'

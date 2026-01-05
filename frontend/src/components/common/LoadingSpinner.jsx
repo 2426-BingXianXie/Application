@@ -93,7 +93,6 @@ export const SkeletonLoader = ({
                     className={clsx(
                         'h-4 bg-gray-200 dark:bg-gray-700 rounded',
                         animate && 'animate-pulse',
-                        // Vary the width for more natural look
                         index === 0 && 'w-3/4',
                         index === 1 && 'w-full',
                         index === 2 && 'w-2/3',
@@ -161,7 +160,6 @@ export const TableSkeleton = ({
                             <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
                                 <div className={clsx(
                                     'h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse',
-                                    // Vary widths for more natural look
                                     colIndex === 0 ? 'w-32' :
                                     colIndex === 1 ? 'w-24' :
                                     colIndex === 2 ? 'w-16' : 'w-20'

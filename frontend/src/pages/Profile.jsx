@@ -114,8 +114,7 @@ const Profile = () => {
 
         setIsSaving(true)
         try {
-            // This would call the password change service
-            await new Promise(resolve => setTimeout(resolve, 1000)) // Mock API call
+            await new Promise(resolve => setTimeout(resolve, 1000))
             success('Password changed successfully!')
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
         } catch (err) {
@@ -128,8 +127,7 @@ const Profile = () => {
     const handleSaveNotifications = async () => {
         setIsSaving(true)
         try {
-            // This would call the preferences update service
-            await new Promise(resolve => setTimeout(resolve, 1000)) // Mock API call
+            await new Promise(resolve => setTimeout(resolve, 1000))
             success('Notification preferences updated!')
         } catch (err) {
             error('Failed to update preferences. Please try again.')

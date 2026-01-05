@@ -11,7 +11,7 @@ const PermitList = ({
                         error = null,
                         onRefresh,
                         showFilters = true,
-                        layout = 'grid' // 'grid' or 'list'
+                        layout = 'grid'
                     }) => {
     const [viewMode, setViewMode] = useState(layout)
     const [showFilterPanel, setShowFilterPanel] = useState(false)

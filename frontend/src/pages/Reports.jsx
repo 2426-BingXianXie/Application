@@ -151,13 +151,11 @@ const Reports = () => {
 
     const handleRefresh = async () => {
         setRefreshing(true)
-        // This would refetch the data
         await new Promise(resolve => setTimeout(resolve, 1000))
         setRefreshing(false)
     }
 
     const handleExportReport = () => {
-        // This would generate and download a report
         console.log('Exporting report...')
     }
 

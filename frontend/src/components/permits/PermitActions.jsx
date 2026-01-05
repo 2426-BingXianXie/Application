@@ -186,7 +186,6 @@ const PermitActions = ({
     }
 
     const handleDownloadCertificate = () => {
-        // This would trigger certificate download
         const link = document.createElement('a')
         link.href = `/api/v1/permits/${permit.id}/certificate`
         link.download = `permit-${permit.permitNumber}-certificate.pdf`
@@ -205,7 +204,6 @@ const PermitActions = ({
     const actions = getAvailableActions()
 
     if (compact && actions.length <= 3) {
-        // Compact view - show buttons inline
         return (
             <div className="flex items-center space-x-1">
                 {actions.map((action) => (

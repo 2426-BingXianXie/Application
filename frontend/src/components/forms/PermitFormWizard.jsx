@@ -136,7 +136,7 @@ const PermitFormWizard = ({
     // Get filtered steps (removing conditional steps that shouldn't show)
     const visibleSteps = steps.filter(shouldShowStep)
 
-    // Get current step data - ensure we have valid step
+    // Get current step data
     const currentStepData = visibleSteps[currentStep] || visibleSteps[0]
     const CurrentStepComponent = currentStepData?.component
 

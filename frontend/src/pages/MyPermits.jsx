@@ -210,7 +210,6 @@ const MyPermits = () => {
 
         if (confirmed) {
             try {
-                // API call to delete permit would go here
                 showSuccess('Permit Deleted', 'The draft permit has been deleted.')
             } catch (error) {
                 showError('Delete Failed', 'Unable to delete the permit. Please try again.')
@@ -220,7 +219,6 @@ const MyPermits = () => {
 
     const handleDownloadCertificate = (permit) => {
         if (permit.status === 'APPROVED') {
-            // API call to download certificate
             showSuccess('Download Started', 'Your permit certificate is being downloaded.')
         } else {
             showWarning('Not Available', 'Certificate is only available for approved permits.')
@@ -238,7 +236,6 @@ const MyPermits = () => {
     const refreshData = async () => {
         setIsLoading(true)
         try {
-            // API call to refresh data would go here
             await new Promise(resolve => setTimeout(resolve, 1000)) // Mock delay
             showSuccess('Data Refreshed', 'Your permits have been updated.')
         } catch (error) {

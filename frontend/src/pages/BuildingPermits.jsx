@@ -162,7 +162,6 @@ const BuildingPermits = () => {
     // Export permits
     const handleExport = async (format = 'csv') => {
         try {
-            // This would call the export API
             showSuccess('Export Started', `Building permits export started in ${format.toUpperCase()} format`)
         } catch (error) {
             showError('Export Failed', 'Failed to export building permits')

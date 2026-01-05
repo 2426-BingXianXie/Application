@@ -419,7 +419,7 @@ export const NOTIFICATION_TYPE = {
 
 // Form validation patterns
 export const VALIDATION_PATTERNS = {
-    EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
     PHONE: /^(\+1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})(\s?(ext|x|extension)[-.\s]?(\d+))?$/,
     ZIP_CODE: /^\d{5}(-\d{4})?$/,
     LICENSE_NUMBER: /^[A-Za-z0-9-]+$/

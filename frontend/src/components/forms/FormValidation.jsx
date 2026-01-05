@@ -68,7 +68,7 @@ const FormValidation = ({ formData, permitType, className = '' }) => {
 
             // Address2 is optional
             if (contact.address2) completedFields++
-            totalFields++ // Still count it for completion rate
+            totalFields++
         }
 
         // Location Info Validation
