@@ -5,10 +5,18 @@ import { applications as applicationsApi } from '../api/client';
 import './ApplicationListPage.css';
 
 export default function ApplicationListPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading, refresh } = useAuth();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // If we have a token but user not yet loaded (e.g. just logged in), refresh auth once
+  const hasToken = typeof localStorage !== 'undefined' && !!localStorage.getItem('token');
+  useEffect(() => {
+    if (!user && !authLoading && hasToken) {
+      refresh();
+    }
+  }, [user, authLoading, hasToken, refresh]);
 
   useEffect(() => {
     if (!user) return;
@@ -17,6 +25,10 @@ export default function ApplicationListPage() {
       .catch((err) => setError(err.body || 'Failed to load applications'))
       .finally(() => setLoading(false));
   }, [user]);
+
+  if (authLoading || (!user && hasToken)) {
+    return <div className="page-loading">Loading…</div>;
+  }
 
   if (!user) {
     return (
