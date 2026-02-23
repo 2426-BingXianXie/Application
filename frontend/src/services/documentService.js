@@ -1,6 +1,12 @@
 import api from './api'
 
 const documentService = {
+    // Document Center: list public documents with categories and search by name
+    async listDocuments(params = {}) {
+        const response = await api.get('/documents', { params })
+        return response.data
+    },
+
     // Upload document
     uploadDocument: async (permitId, file, documentType, onProgress) => {
         const formData = new FormData()

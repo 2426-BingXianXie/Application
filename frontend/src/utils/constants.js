@@ -16,23 +16,53 @@ export const ROUTES = {
     HOME: '/',
     DASHBOARD: '/dashboard',
     APPLY: '/apply',
+    APPLY_PERMIT_TYPE: '/apply/:permitTypeSlug',
     MY_PERMITS: '/my-permits',
     BUILDING_PERMITS: '/building-permits',
     GAS_PERMITS: '/gas-permits',
     PERMITS: '/permits',
     PERMIT_DETAILS: '/permit/:id',
+    APPLICATION_DETAILS: '/applications/:id',
     PROFILE: '/profile',
     SETTINGS: '/settings',
     REPORTS: '/reports',
     USERS: '/users',
+    DOCUMENTS: '/documents',
+    PROPERTY_RECORDS: '/property-records',
     LOGIN: '/login',
     REGISTER: '/register',
     UNAUTHORIZED: '/unauthorized',
     HELP: '/help',
     CONTACT: '/contact',
     TERMS: '/terms',
-    PRIVACY: '/privacy'
+    PRIVACY: '/privacy',
+    SEARCH: '/search',
+    ACTIVITY: '/activity',
+    APPROVALS: '/approvals'
 }
+
+// Quincy MA Inspectional Services – 19 permit types (plan-aligned)
+export const QUINCY_PERMIT_TYPES = [
+    { slug: 'accessory-dwelling-unit', name: 'Accessory Dwelling Unit', category: 'Building', description: 'Apply for an accessory dwelling unit (ADU).' },
+    { slug: 'after-hour-special-inspection', name: 'After Hour Special Inspection', category: 'Inspection', description: 'Request inspection outside regular hours.' },
+    { slug: 'building-permit', name: 'Building Permit', category: 'Building', description: 'Construction, alteration, or repair of structures.' },
+    { slug: 'certificate-of-inspection', name: 'Certificate of Inspection', category: 'Inspection', description: 'Request a certificate of inspection.' },
+    { slug: 'conservation-commission', name: 'Conservation Commission', category: 'Environmental', description: 'Conservation Commission applications.' },
+    { slug: 'certificate-of-occupancy', name: 'Certificate of Occupancy', category: 'Building', description: 'Certificate of occupancy for new or changed use.' },
+    { slug: 'dba-zoning-board-approval', name: 'D.B.A. Zoning Board Approval', category: 'Zoning', description: 'Doing Business As / Zoning Board approval.' },
+    { slug: 'electrical-permit', name: 'Electrical Permit', category: 'Trade', description: 'Electrical work permits.' },
+    { slug: 'gas-permit', name: 'Gas Permit', category: 'Trade', description: 'Gas installation and repair permits.' },
+    { slug: 'paving-permit', name: 'Paving Permit', category: 'Infrastructure', description: 'Paving and sidewalk permits.' },
+    { slug: 'plumbing-permit', name: 'Plumbing Permit', category: 'Trade', description: 'Plumbing work permits.' },
+    { slug: 'preliminary-site-plan-zoning', name: 'Preliminary Site Plan/Zoning Review', category: 'Zoning', description: 'Preliminary site plan and zoning review.' },
+    { slug: 'quincy-paving-builders-license', name: 'Quincy Paving License and/or Quincy Builders License (New and Renewal)', category: 'License', description: 'Paving or builders license application or renewal.' },
+    { slug: 'sheet-metal-permit', name: 'Sheet Metal Permit', category: 'Trade', description: 'Sheet metal and HVAC-related permits.' },
+    { slug: 'short-term-rental-registration', name: 'Short-Term Rental Registration', category: 'Housing', description: 'Register a short-term rental property.' },
+    { slug: 'small-cell-wireless', name: 'Small Cell Wireless', category: 'Infrastructure', description: 'Small cell wireless facility applications.' },
+    { slug: 'temporary-extension-of-premises', name: 'Temporary Extension of Premises', category: 'Zoning', description: 'Temporary extension of premises (e.g. outdoor seating).' },
+    { slug: 'ticket-appeal-request', name: 'Ticket Appeal Request', category: 'Appeals', description: 'Appeal a citation or ticket.' },
+    { slug: 'zoning-board-of-appeal', name: 'Zoning Board of Appeal', category: 'Zoning', description: 'Zoning Board of Appeal application.' }
+]
 
 // Permit statuses
 export const PERMIT_STATUS = {
