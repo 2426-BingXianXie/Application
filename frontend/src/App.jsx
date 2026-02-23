@@ -87,6 +87,23 @@ const AppRoutes = () => {
                         <Routes>
                             <Route path="/" element={<Navigate to="/dashboard" replace />} />
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/apply" element={<PermitTypesList />} />
+                            <Route path="/apply/:permitTypeSlug" element={<ApplicationForm />} />
+                            <Route path="/applications/:id" element={<ApplicationDetail />} />
+                            <Route path="/my-permits" element={<MyPermits />} />
+                            <Route path="/permit/:id" element={<PermitDetails />} />
+                            <Route path="/permits" element={<MyPermits />} />
+                            <Route path="/building-permits" element={<BuildingPermits />} />
+                            <Route path="/gas-permits" element={<GasPermits />} />
+                            <Route path="/reports" element={<Reports />} />
+                            <Route path="/search" element={<Search />} />
+                            <Route path="/activity" element={<Activity />} />
+                            <Route path="/approvals" element={<Approvals />} />
+                            <Route path="/users" element={<UserManagement />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/documents" element={<DocumentCenter />} />
+                            <Route path="/property-records" element={<PropertySearch />} />
                             <Route path="*" element={<NotFound />} />
                         </Routes>
                     </Layout>

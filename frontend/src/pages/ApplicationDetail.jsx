@@ -81,7 +81,7 @@ const ApplicationDetail = () => {
                         </div>
                     </div>
                     <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${statusClass}`}>
-                        {PERMIT_STATUS_LABELS[status?.toUpperCase?.()] || application.status || status}
+                        {PERMIT_STATUS_LABELS[status?.toUpperCase?.()?.replace(/-/g, '_')] || application.status || status}
                     </span>
                 </div>
                 <div className="px-6 py-4 space-y-3">

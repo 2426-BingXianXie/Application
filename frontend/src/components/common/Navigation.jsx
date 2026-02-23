@@ -15,7 +15,9 @@ import {
     CheckCircle2,
     Users,
     Shield,
-    LogOut
+    LogOut,
+    FolderOpen,
+    MapPin
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { USER_ROLE_LABELS } from '../../utils/constants'
@@ -81,6 +83,18 @@ const Navigation = ({ onNavigate }) => {
             icon: Flame,
             description: 'Gas installation and safety permits',
             permissions: ['read:gas_permits']
+        },
+        {
+            name: 'Document Center',
+            href: '/documents',
+            icon: FolderOpen,
+            description: 'Public documents, forms, and guidelines'
+        },
+        {
+            name: 'Property Records',
+            href: '/property-records',
+            icon: MapPin,
+            description: 'Search property and inspectional records'
         },
         {
             name: 'Reports & Analytics',
