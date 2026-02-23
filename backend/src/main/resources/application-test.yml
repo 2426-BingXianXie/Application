@@ -16,6 +16,6 @@ spring:
 
 logging:
   level:
-    com.permit: WARN
+    gov.quincy.ma.permit: WARN
     org.springframework: WARN
     org.hibernate: WARN

@@ -16,6 +16,7 @@
     <description>Quincy MA Permit Portal Backend</description>
     <properties>
         <java.version>21</java.version>
+        <start-class>gov.quincy.ma.permit.PermitPortalApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
@@ -77,6 +78,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>gov.quincy.ma.permit.PermitPortalApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
