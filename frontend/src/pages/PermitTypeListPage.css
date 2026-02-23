@@ -1,0 +1,50 @@
+.permit-list-page h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  color: #1a3a52;
+}
+
+.permit-list-intro {
+  margin: 0 0 1.5rem;
+  color: #555;
+}
+
+.permit-list-category {
+  margin-bottom: 2rem;
+}
+
+.permit-list-category h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+.permit-list-category ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.permit-list-category li {
+  margin: 0.25rem 0;
+}
+
+.permit-list-category a {
+  color: #1a3a52;
+  text-decoration: none;
+}
+
+.permit-list-category a:hover {
+  text-decoration: underline;
+}
+
+.page-loading,
+.page-error {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.page-error {
+  color: #c00;
+}

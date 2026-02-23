@@ -1,0 +1,48 @@
+.home {
+  padding: 0.5rem 0;
+}
+
+.home h1 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  color: #1a3a52;
+}
+
+.home-intro {
+  margin: 0 0 2rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.home-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.home-card {
+  display: block;
+  padding: 1.25rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.home-card:hover {
+  border-color: #1a3a52;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.home-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: #1a3a52;
+}
+
+.home-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}

@@ -1,0 +1,11 @@
+# Activate with: spring.profiles.active=postgres
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quincydb}
+    username: ${DB_USER:quincy}
+    password: ${DB_PASSWORD:quincy}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

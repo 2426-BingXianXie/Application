@@ -1,0 +1,81 @@
+.application-list-page h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  color: #1a3a52;
+}
+
+.empty-message {
+  color: #555;
+}
+
+.empty-message a {
+  color: #1a3a52;
+}
+
+.application-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.application-table th,
+.application-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.application-table th {
+  font-weight: 600;
+  color: #333;
+}
+
+.application-table a {
+  color: #1a3a52;
+  text-decoration: none;
+}
+
+.application-table a:hover {
+  text-decoration: underline;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.status-draft {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.status-submitted {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-under_review {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-rejected {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.page-message {
+  padding: 2rem;
+  text-align: center;
+  color: #555;
+}
+
+.page-message a {
+  color: #1a3a52;
+}

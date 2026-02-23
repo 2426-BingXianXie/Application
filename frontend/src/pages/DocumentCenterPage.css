@@ -1,0 +1,82 @@
+.document-center-page h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  color: #1a3a52;
+}
+
+.doc-intro {
+  margin: 0 0 1rem;
+  color: #555;
+}
+
+.doc-search-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.doc-search-form input {
+  flex: 1;
+  max-width: 320px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.doc-search-form button {
+  padding: 0.5rem 1rem;
+  background: #1a3a52;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.doc-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.doc-categories button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.doc-categories button.active {
+  background: #1a3a52;
+  color: #fff;
+  border-color: #1a3a52;
+}
+
+.doc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.doc-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.doc-list a {
+  color: #1a3a52;
+  text-decoration: none;
+}
+
+.doc-list a:hover {
+  text-decoration: underline;
+}
+
+.doc-cat {
+  font-size: 0.85rem;
+  color: #777;
+}

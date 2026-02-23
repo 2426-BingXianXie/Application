@@ -1,0 +1,94 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-header {
+  background: #1a3a52;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.layout-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.layout-logo {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.layout-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.layout-nav a {
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+}
+
+.layout-nav a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.layout-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.layout-auth a {
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+}
+
+.layout-auth a:hover {
+  color: #fff;
+}
+
+.layout-auth button {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.6);
+  color: #fff;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.layout-user {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.layout-main {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.5rem 1rem;
+}
+
+.layout-footer {
+  background: #f0f0f0;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.layout-footer p {
+  margin: 0;
+}
