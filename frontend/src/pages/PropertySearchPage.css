@@ -1,64 +1,94 @@
 .property-search-page h1 {
-  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
   font-size: 1.75rem;
-  color: #1a3a52;
+  font-weight: 400;
+  margin: 0 0 0.5rem;
+  color: var(--color-primary);
 }
 
 .prop-intro {
-  margin: 0 0 1rem;
-  color: #555;
+  margin: 0 0 1.25rem;
+  color: var(--color-text-muted);
 }
 
 .prop-search-form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .prop-search-form input {
   flex: 1;
-  max-width: 320px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  min-width: 200px;
+  max-width: 340px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.prop-search-form input:focus {
+  outline: none;
+  border-color: var(--color-primary-soft);
+  box-shadow: 0 0 0 3px rgba(12, 53, 66, 0.1);
 }
 
 .prop-search-form button {
-  padding: 0.5rem 1rem;
-  background: #1a3a52;
+  padding: 0.55rem 1.1rem;
+  background: var(--color-accent);
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.prop-search-form button:hover {
+  background: var(--color-accent-hover);
 }
 
 .prop-results h2 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.85rem;
   font-size: 1.1rem;
-  color: #333;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 .prop-results ul {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .prop-card {
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.35rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.prop-card:hover {
+  border-color: var(--color-primary-soft);
+  box-shadow: var(--shadow-sm);
 }
 
 .prop-card strong {
-  color: #1a3a52;
+  color: var(--color-primary);
 }
 
 .prop-card span {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--color-text-muted);
 }

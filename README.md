@@ -4,8 +4,8 @@ A full-stack rebuild of the City of Quincy, Massachusetts online permitting port
 
 ## Features
 
-- **19 permit types** (Building Permit, Electrical, Plumbing, Quincy Builders License, etc.)
-- **Apply online**: dynamic forms per permit type, save draft or submit
+- **19 permit types** (Building Permit, Electrical, Plumbing, Quincy Builders License, etc.), aligned with [Quincy MA Inspectional Services](https://www.quincyma.gov/departments/inspectional_services/online_permitting.php) online permitting
+- **Apply online**: dynamic forms **per permit type** (each permit has its own required fields), save draft or submit
 - **My Applications**: list and view application status (Draft, Submitted, Under review, Approved, Rejected)
 - **Staff**: list all applications and update status/notes (log in as staff)
 - **Document Center**: browse documents by category, search by name
@@ -77,6 +77,19 @@ permit-management-system/
 - `POST /api/applications`, `GET /api/applications`, `GET /api/applications/staff`, `GET /api/applications/:id`, `PATCH /api/applications/:id`
 - `GET /api/documents?category=&search=`, `GET /api/documents/categories`, `GET /api/documents/:id/file`
 - `GET /api/property-records/search?q=`
+
+## Permit forms (Quincy MA alignment)
+
+Form fields are defined per permit type in `DataSeeder` and match typical requirements for Quincy MA:
+
+- **Certificate of Inspection**: Applicant name, property address, description of work, contact phone/email (matches city form).
+- **Building Permit**: Job address, owner and contractor info, license number, description, estimated value, existing/proposed use.
+- **Electrical / Plumbing / Gas / Sheet Metal**: Property address, owner, contractor with license number, work type, description.
+- **Certificate of Occupancy**: Property address, owner contact, type of use.
+- **Short-Term Rental**: Property address, owner, max occupants, listing URL, contact.
+- **Conservation / Zoning Board / ADU / Paving / etc.**: Applicant, address, description, contact (or permit-specific fields).
+
+Schemas are seeded only when the database is empty. To refresh permit types (e.g. after changing form schemas), use a fresh H2 DB (delete `backend/*.db` or `backend/data/*`) and restart the backend, or add a migration/script to update existing `permit_types` rows.
 
 ## Configuration
 

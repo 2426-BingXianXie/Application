@@ -18,10 +18,11 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await authApi.login(email, password);
-      await login(res.token);
+      await login(res.token, { email: res.email, name: res.name, role: res.role });
       navigate('/applications');
     } catch (err) {
-      setError(err.json?.message || err.body || 'Login failed');
+      const msg = err.json?.message || err.json?.error || (typeof err.body === 'string' && err.body.length < 200 ? err.body : 'Login failed');
+      setError(msg);
     } finally {
       setLoading(false);
     }

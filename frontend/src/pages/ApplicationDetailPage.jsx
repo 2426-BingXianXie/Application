@@ -96,8 +96,8 @@ export default function ApplicationDetailPage() {
           <dl className="detail-data">
             {Object.entries(app.formData).map(([k, v]) => (
               <div key={k}>
-                <dt>{k}</dt>
-                <dd>{String(v)}</dd>
+                <dt>{k.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())}</dt>
+                <dd>{v === true ? 'Yes' : v === false ? 'No' : (v === '' || v == null ? '—' : String(v))}</dd>
               </div>
             ))}
           </dl>

@@ -1,81 +1,106 @@
 .application-list-page h1 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
   margin: 0 0 1rem;
-  font-size: 1.5rem;
-  color: #1a3a52;
+  color: var(--color-primary);
 }
 
 .empty-message {
-  color: #555;
+  color: var(--color-text-muted);
 }
 
 .empty-message a {
-  color: #1a3a52;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.empty-message a:hover {
+  color: var(--color-accent);
 }
 
 .application-table {
   width: 100%;
   border-collapse: collapse;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .application-table th,
 .application-table td {
-  padding: 0.6rem 0.75rem;
+  padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.application-table tr:last-child td {
+  border-bottom: none;
 }
 
 .application-table th {
   font-weight: 600;
-  color: #333;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--color-bg);
 }
 
 .application-table a {
-  color: #1a3a52;
-  text-decoration: none;
+  color: var(--color-primary);
+  font-weight: 500;
 }
 
 .application-table a:hover {
-  text-decoration: underline;
+  color: var(--color-accent);
 }
 
 .status {
   display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .status-draft {
-  background: #f0f0f0;
-  color: #555;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
 }
 
 .status-submitted {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #dbeafe;
+  color: #1e40af;
 }
 
 .status-under_review {
-  background: #fff3e0;
-  color: #e65100;
+  background: #ffedd5;
+  color: #c2410c;
 }
 
 .status-approved {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: #dcfce7;
+  color: var(--color-success);
 }
 
 .status-rejected {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--color-error-bg);
+  color: var(--color-error);
 }
 
 .page-message {
   padding: 2rem;
   text-align: center;
-  color: #555;
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .page-message a {
-  color: #1a3a52;
+  color: var(--color-primary);
+  font-weight: 500;
 }

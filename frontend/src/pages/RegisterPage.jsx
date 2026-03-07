@@ -19,10 +19,11 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const res = await authApi.register({ name, email, password });
-      await login(res.token);
+      await login(res.token, { email: res.email, name: res.name, role: res.role });
       navigate('/applications');
     } catch (err) {
-      setError(err.json?.message || err.body || 'Registration failed');
+      const msg = err.json?.message || err.json?.error || (typeof err.body === 'string' && err.body.length < 200 ? err.body : 'Registration failed');
+      setError(msg);
     } finally {
       setLoading(false);
     }

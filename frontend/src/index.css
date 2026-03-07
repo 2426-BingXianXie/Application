@@ -1,11 +1,99 @@
+/* Quincy MA Permit Portal – design tokens & base */
 :root {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  line-height: 1.5;
-  color: #222;
-  background-color: #fff;
+  /* Typography */
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+
+  /* Civic palette: deep teal, warm paper, terracotta accent */
+  --color-bg: #f6f5f1;
+  --color-bg-elevated: #fff;
+  --color-primary: #0c3542;
+  --color-primary-soft: #1a4d5c;
+  --color-accent: #b85c38;
+  --color-accent-hover: #9a4a2a;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5a5a;
+  --color-border: #e0ddd6;
+  --color-border-strong: #c4c0b5;
+
+  /* Semantic */
+  --color-success: #2d6a4f;
+  --color-error: #b91c1c;
+  --color-error-bg: #fef2f2;
+
+  /* Spacing & shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(12, 53, 66, 0.06);
+  --shadow-md: 0 4px 12px rgba(12, 53, 66, 0.08);
+  --shadow-lg: 0 8px 24px rgba(12, 53, 66, 0.1);
+
+  /* Layout */
+  --content-max: 1120px;
+  --header-height: 64px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Subtle paper texture / depth */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+
+/* Shared page states */
+.page-loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.page-error {
+  padding: 1rem;
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(185, 28, 28, 0.2);
 }

@@ -1,14 +1,5 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  line-height: 1.5;
-  color: #222;
-}
-
+/* App shell – layout handles most; keep minimal */
 #root {
-  min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
